@@ -10,6 +10,7 @@ import {
   Divider,
 } from "@mui/material";
 import { Facebook, Instagram, Twitter, YouTube } from "@mui/icons-material";
+import colors from "../colors"; // Update path if necessary
 
 const socialIcons = [
   { icon: Facebook, label: "Facebook" },
@@ -23,26 +24,23 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        background: "linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%)",
-        mt: 6,
+        background: colors.drawerBg,
         pt: { xs: 4, md: 6 },
         pb: 4,
         px: { xs: 3, sm: 5, md: 8 },
-        borderTop: "1px solid rgba(255, 20, 147, 0.15)",
-        fontFamily: "inherit",
+        borderTop: `1px solid ${colors.border}`,
       }}
     >
-      {/* Content */}
       <Grid container spacing={{ xs: 3, md: 5 }} justifyContent="center">
         {/* Brand Description */}
         <Grid item xs={12} md={4} lg={3}>
           <Typography
             variant="h5"
             sx={{
-              fontWeight: 800,
-              color: "deeppink",
+              fontWeight: 700,
+              color: colors.primary,
               mb: 2,
-              fontFamily: '"Playfair Display", serif',
+              fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" },
             }}
           >
             Slay
@@ -50,48 +48,55 @@ const Footer = () => {
           <Typography
             variant="body1"
             sx={{
-              color: "#555",
+              color: colors.icon,
               lineHeight: 1.6,
               fontSize: { xs: "1rem", sm: "1.1rem" },
               mb: 2,
             }}
           >
             Your one-stop destination for{" "}
-            <Box component="span" sx={{ color: "deeppink", fontWeight: 700 }}>
+            <Box component="span" sx={{ color: colors.primary, fontWeight: 700 }}>
               trendsetting fashion
             </Box>{" "}
             that keeps you ahead of the curve and{" "}
-            <Box component="span" sx={{ color: "deeppink", fontWeight: 700 }}>
+            <Box component="span" sx={{ color: colors.primary, fontWeight: 700 }}>
               timeless styles
             </Box>{" "}
             that never go out of vogue — all curated to help you express your
             unique personality with confidence.
           </Typography>
 
-          {/* Mobile Social Icons - Fine-Tuned */}
-          <Box sx={{ display: { xs: "flex", md: "none" }, gap: 0.75, mb: 1.5, justifyContent: "center" }}>
+          {/* Mobile Social Icons */}
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              gap: 0.75,
+              mb: 1.5,
+              justifyContent: "center",
+            }}
+          >
             {socialIcons.map(({ icon: Icon, label }, idx) => (
               <IconButton
                 key={idx}
                 aria-label={label}
                 sx={{
-                  color: "deeppink",
-                  backgroundColor: "rgba(255, 20, 147, 0.1)",
+                  color: colors.primary,
+                  backgroundColor: `${colors.primary}1A`,
                   "&:hover": {
-                    backgroundColor: "rgba(255, 20, 147, 0.2)",
+                    backgroundColor: `${colors.primary}33`,
                     transform: "translateY(-2px)",
                   },
                   transition: "all 0.3s ease",
-                  p: 1, // Increased from 0.75
+                  p: 1,
                 }}
               >
-                <Icon fontSize="medium" /> {/* Changed from small */}
+                <Icon fontSize="medium" />
               </IconButton>
             ))}
           </Box>
         </Grid>
 
-        {/* Footer Link Sections */}
+        {/* Footer Links */}
         {[
           { title: "Shop", links: ["New Arrivals", "Best Sellers", "Sale", "Collections"] },
           { title: "Support", links: ["Help Center", "Shipping Info", "Returns", "Contact Us"] },
@@ -103,7 +108,7 @@ const Footer = () => {
               sx={{
                 fontWeight: 700,
                 mb: 2,
-                color: "#333",
+                color: colors.icon,
                 fontSize: "1rem",
               }}
             >
@@ -117,10 +122,10 @@ const Footer = () => {
                 sx={{
                   display: "block",
                   mb: 1,
-                  color: "#666",
+                  color: colors.icon,
                   fontSize: "0.875rem",
                   "&:hover": {
-                    color: "deeppink",
+                    color: colors.primary,
                     transform: "translateX(4px)",
                   },
                   transition: "all 0.2s ease",
@@ -132,14 +137,14 @@ const Footer = () => {
           </Grid>
         ))}
 
-        {/* Newsletter Section */}
+        {/* Newsletter */}
         <Grid item xs={12} sm={8} md={4} lg={3}>
           <Typography
             variant="subtitle2"
             sx={{
               fontWeight: 700,
               mb: 1.5,
-              color: "#333",
+              color: colors.icon,
               fontSize: "1rem",
             }}
           >
@@ -148,7 +153,7 @@ const Footer = () => {
           <Typography
             variant="body2"
             sx={{
-              color: "#555",
+              color: colors.icon,
               mb: 2,
               lineHeight: 1.5,
             }}
@@ -169,14 +174,14 @@ const Footer = () => {
               variant="outlined"
               fullWidth
               sx={{
-                backgroundColor: "#fff",
+                backgroundColor: colors.cardBg,
                 borderRadius: "6px",
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": {
-                    borderColor: "rgba(255, 20, 147, 0.3)",
+                    borderColor: `${colors.primary}4D`,
                   },
                   "&:hover fieldset": {
-                    borderColor: "deeppink",
+                    borderColor: colors.primary,
                   },
                 },
                 "& .MuiInputBase-input": {
@@ -187,8 +192,8 @@ const Footer = () => {
             <Button
               variant="contained"
               sx={{
-                backgroundColor: "deeppink",
-                color: "#fff",
+                backgroundColor: colors.primary,
+                color: colors.badgeText,
                 textTransform: "none",
                 fontWeight: 600,
                 px: 3,
@@ -196,8 +201,8 @@ const Footer = () => {
                 borderRadius: "6px",
                 fontSize: "0.875rem",
                 "&:hover": {
-                  backgroundColor: "#c71585",
-                  boxShadow: "0 4px 12px rgba(255, 20, 147, 0.4)",
+                  backgroundColor: "#A83200",
+                  boxShadow: `0 4px 12px ${colors.primary}66`,
                 },
               }}
             >
@@ -205,17 +210,17 @@ const Footer = () => {
             </Button>
           </Box>
 
-          {/* Desktop Social Icons - Unchanged */}
+          {/* Desktop Social Icons */}
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1, justifyContent: "center" }}>
             {socialIcons.map(({ icon: Icon, label }, idx) => (
               <IconButton
                 key={idx}
                 aria-label={label}
                 sx={{
-                  color: "deeppink",
-                  backgroundColor: "rgba(255, 20, 147, 0.1)",
+                  color: colors.primary,
+                  backgroundColor: `${colors.primary}1A`,
                   "&:hover": {
-                    backgroundColor: "rgba(255, 20, 147, 0.2)",
+                    backgroundColor: `${colors.primary}33`,
                     transform: "translateY(-2px)",
                   },
                   transition: "all 0.3s ease",
@@ -229,11 +234,13 @@ const Footer = () => {
         </Grid>
       </Grid>
 
-      {/* Divider */}
       <Divider
         sx={{
           my: 3,
-          borderColor: "rgba(255, 20, 147, 0.2)",
+          borderColor: `${colors.primary}50`,
+          width: "100%",
+          maxWidth: "1200px",
+          height: "2px",
         }}
       />
 
@@ -251,7 +258,7 @@ const Footer = () => {
         <Typography
           variant="body2"
           sx={{
-            color: "#666",
+            color: colors.icon,
             fontSize: "0.85rem",
           }}
         >
@@ -272,9 +279,9 @@ const Footer = () => {
               href="#"
               underline="none"
               sx={{
-                color: "#666",
+                color: colors.icon,
                 fontSize: "0.85rem",
-                "&:hover": { color: "deeppink" },
+                "&:hover": { color: colors.primary },
               }}
             >
               {text}

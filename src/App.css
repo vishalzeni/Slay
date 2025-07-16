@@ -1,10 +1,14 @@
 /* Apply globally */
 * {
-  font-family: 'Playfair Display', serif !important;
   box-sizing: border-box;
+  
   margin: 0;
   padding: 0;
 }
+body {
+  font-family: "Poppins", "Helvetica", "Arial", sans-serif;
+}
+
 .swiper-button-prev,
 .swiper-button-next {
   color: white !important;

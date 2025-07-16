@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import colors from "../colors";
 import {
   AppBar,
   Box,
@@ -24,21 +25,21 @@ import {
   Close as CloseIcon,
 } from "@mui/icons-material";
 
-// Styled Components
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor: "#fffcfdff",
-  boxShadow: `0 2px 12px rgba(255, 20, 147, 0.1)`,
+  backgroundColor: colors.background,
+  boxShadow: "0 2px 4px rgba(122, 78, 171, 0.1)", // subtle shadow
   position: "sticky",
   top: 0,
   zIndex: theme.zIndex.appBar,
 }));
 
+
 const NavButton = styled(Button)(({ theme }) => ({
-  color: "#ff1493",
+  color: colors.icon,
   fontWeight: 600,
-  textTransform: "uppercase",
   letterSpacing: 1,
   fontSize: "0.75rem",
+  textTransform: "uppercase",
   minWidth: "unset",
   padding: theme.spacing(1, 1.5),
   position: "relative",
@@ -49,7 +50,7 @@ const NavButton = styled(Button)(({ theme }) => ({
     height: "2px",
     bottom: 0,
     left: 0,
-    backgroundColor: "#ff1493",
+    backgroundColor: colors.primary,
     transform: "scaleX(0)",
     transformOrigin: "left",
     transition: "transform 250ms ease-in-out",
@@ -57,6 +58,7 @@ const NavButton = styled(Button)(({ theme }) => ({
   },
   "&:hover": {
     backgroundColor: "transparent",
+    color: colors.primary,
     "&::after": {
       transform: "scaleX(1)",
     },
@@ -67,10 +69,11 @@ const NavButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+
 const LogoText = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
   letterSpacing: 1.5,
-  color: "#ff1493",
+  color: colors.primary,
   fontSize: "1.5rem",
   textTransform: "uppercase",
   whiteSpace: "nowrap",
@@ -79,17 +82,20 @@ const LogoText = styled(Typography)(({ theme }) => ({
   },
 }));
 
+
 const IconWrapper = styled(IconButton)(({ theme }) => ({
-  color: "#555",
+  color: colors.icon,
   padding: theme.spacing(1),
+  transition: "color 0.3s ease",
   "&:hover": {
-    color: "#ff1493",
+    color: colors.primary,
     backgroundColor: "transparent",
   },
   [theme.breakpoints.up("sm")]: {
     padding: theme.spacing(1, 1.5),
   },
 }));
+
 
 function Header() {
   const theme = useTheme();
@@ -105,17 +111,18 @@ function Header() {
   return (
     <>
       <StyledAppBar>
-        <Toolbar
-          sx={{
-            position: "relative",
-            justifyContent: "space-between",
-            px: { xs: 1, sm: 2, md: 4 },
-            minHeight: "64px",
-          }}
-        >
+       <Toolbar
+  sx={{
+    position: "relative",
+    justifyContent: "space-between",
+    px: { xs: 1, sm: 2, md: 4 },
+    minHeight: {  sm: "64px", md: "72px" }, // <-- responsive heights
+  }}
+>
+
           {/* Left: Menu on Mobile */}
           <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
-            {isMobile ? (
+            {isTablet || isMobile ? (
               <IconWrapper onClick={toggleDrawer(true)} aria-label="menu">
                 <MenuIcon />
               </IconWrapper>
@@ -167,10 +174,9 @@ function Header() {
                   "& .MuiBadge-badge": {
                     right: 3,
                     top: 8,
-                    backgroundColor: "#ff1493",
-                    color: "white",
+                    backgroundColor: colors.badge,
+                    color: colors.badgeText,
                     fontWeight: 600,
-                    boxShadow: "0 0 5px rgba(255, 20, 147, 0.3)",
                   },
                 }}
               >
@@ -191,7 +197,7 @@ function Header() {
         <Box
           sx={{
             width: 260,
-            backgroundColor: "#fff0f5",
+            backgroundColor: colors.drawerBg,
             height: "100%",
             display: "flex",
             flexDirection: "column",
@@ -207,20 +213,20 @@ function Header() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 p: 2,
-                backgroundColor: "#ffe4ec",
+                backgroundColor: colors.accent,
               }}
             >
               <Typography
                 variant="h6"
                 sx={{
                   fontWeight: 600,
-                  color: "#ff1493",
+                  color: colors.primary,
                 }}
               >
                 Menu
               </Typography>
               <IconButton onClick={toggleDrawer(false)}>
-                <CloseIcon sx={{ color: "#ff1493" }} />
+                <CloseIcon sx={{ color: colors.primary }} />
               </IconButton>
             </Box>
 
@@ -233,7 +239,7 @@ function Header() {
                     primary={text}
                     primaryTypographyProps={{
                       fontWeight: 600,
-                      color: "#ff1493",
+                      color: colors.primary,
                     }}
                   />
                 </ListItem>
@@ -242,15 +248,15 @@ function Header() {
           </Box>
 
           {/* Bottom Account Section */}
-          <Box sx={{ borderTop: "1px solid #fdd" }}>
+          <Box sx={{ borderTop: `1px solid ${colors.border}` }}>
             <List>
               <ListItem button onClick={toggleDrawer(false)}>
-                <AccountCircleIcon sx={{ color: "#ff1493", mr: 1 }} />
+                <AccountCircleIcon sx={{ color: colors.primary, mr: 1 }} />
                 <ListItemText
                   primary="My Account"
                   primaryTypographyProps={{
                     fontWeight: 600,
-                    color: "#ff1493",
+                    color: colors.primary,
                   }}
                 />
               </ListItem>

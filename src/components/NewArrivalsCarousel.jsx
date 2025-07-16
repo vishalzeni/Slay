@@ -1,12 +1,22 @@
 import React from "react";
-import { Box, Typography, Card, CardMedia, CardContent, CardActions, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Button,
+  IconButton,
+} from "@mui/material";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import clothesData from "../data/clothes.json";
-
+import colors from "../colors";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
 const NewArrivalsCarousel = () => {
   const newArrivals = clothesData.filter((item) => item.isNewArrival);
@@ -18,36 +28,80 @@ const NewArrivalsCarousel = () => {
         py: { xs: 4, md: 6 },
         maxWidth: "1440px",
         mx: "auto",
-        background: "linear-gradient(to bottom, #fff0f5 0%, #ffffff 50%)",
+        background: colors.background,
+        position: "relative",
       }}
     >
       <Typography
         variant="h4"
         sx={{
-          color: "deeppink",
+          color: colors.primary,
           textAlign: "center",
           fontWeight: 800,
           mb: 4,
-          letterSpacing: 1,
-          fontSize: { xs: "1.75rem", sm: "2rem", md: "2.5rem" },
+          textTransform: "uppercase",
         }}
       >
         New Arrivals
       </Typography>
 
+      {/* Custom Nav Buttons */}
+      <IconButton
+        className="new-arrivals-prev"
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: 10,
+          transform: "translateY(-50%)",
+          zIndex: 10,
+          backgroundColor: "#fff",
+          color: colors.primary,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          "&:hover": {
+            backgroundColor: colors.primary,
+            color: "#fff",
+          },
+        }}
+      >
+        <ChevronLeft />
+      </IconButton>
+
+      <IconButton
+        className="new-arrivals-next"
+        sx={{
+          position: "absolute",
+          top: "50%",
+          right: 10,
+          transform: "translateY(-50%)",
+          zIndex: 10,
+          backgroundColor: "#fff",
+          color: colors.primary,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          "&:hover": {
+            backgroundColor: colors.primary,
+            color: "#fff",
+          },
+        }}
+      >
+        <ChevronRight />
+      </IconButton>
+
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
-        spaceBetween={24}
-        slidesPerView={1}
-        navigation
-        pagination={{ 
+        navigation={{
+          prevEl: ".new-arrivals-prev",
+          nextEl: ".new-arrivals-next",
+        }}
+        pagination={{
           clickable: true,
-          dynamicBullets: true
+          dynamicBullets: true,
         }}
         autoplay={{
           delay: 5000,
           disableOnInteraction: false,
         }}
+        spaceBetween={24}
+        slidesPerView={1}
         breakpoints={{
           480: { slidesPerView: 1.5 },
           600: { slidesPerView: 2 },
@@ -56,11 +110,7 @@ const NewArrivalsCarousel = () => {
           1280: { slidesPerView: 4 },
         }}
         style={{
-          paddingBottom: 40, // Space for pagination
-          "--swiper-navigation-color": "deeppink",
-          "--swiper-pagination-color": "deeppink",
-          "--swiper-pagination-bullet-size": "10px",
-          "--swiper-pagination-bullet-horizontal-gap": "6px"
+          paddingBottom: 40,
         }}
       >
         {newArrivals.map((item) => (
@@ -72,15 +122,16 @@ const NewArrivalsCarousel = () => {
                 flexDirection: "column",
                 borderRadius: "12px",
                 overflow: "hidden",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                border: `1px solid ${colors.border}`,
+                backgroundColor: colors.cardBg,
+                transition: "all 0.4s ease",
                 "&:hover": {
-                  transform: "translateY(-8px)",
-                  boxShadow: "0 12px 24px rgba(255, 20, 147, 0.2)",
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
                 },
               }}
             >
-              <Box sx={{ position: "relative", pt: "125%", overflow: "hidden" }}>
+              <Box sx={{ position: "relative", pt: "125%" }}>
                 <CardMedia
                   component="img"
                   image={item.image}
@@ -92,7 +143,7 @@ const NewArrivalsCarousel = () => {
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    transition: "transform 0.5s ease",
+                    transition: "transform 0.4s ease",
                     "&:hover": {
                       transform: "scale(1.05)",
                     },
@@ -104,8 +155,8 @@ const NewArrivalsCarousel = () => {
                       position: "absolute",
                       top: 12,
                       right: 12,
-                      backgroundColor: "deeppink",
-                      color: "white",
+                      backgroundColor: colors.primary,
+                      color: "#fff",
                       px: 1.5,
                       py: 0.5,
                       borderRadius: "4px",
@@ -119,12 +170,13 @@ const NewArrivalsCarousel = () => {
                   </Box>
                 )}
               </Box>
+
               <CardContent sx={{ flexGrow: 1, px: 2, py: 2 }}>
                 <Typography
                   variant="subtitle1"
                   sx={{
                     fontWeight: 700,
-                    color: "#333",
+                    color: "#222",
                     mb: 0.5,
                     whiteSpace: "nowrap",
                     overflow: "hidden",
@@ -136,42 +188,57 @@ const NewArrivalsCarousel = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "#666",
+                    color: colors.primary,
                     fontWeight: 600,
-                    fontSize: "0.9rem",
+                    fontSize: "1rem",
                   }}
                 >
                   ₹{item.price.toLocaleString()}
                 </Typography>
               </CardContent>
+
               <CardActions sx={{ px: 2, pb: 2 }}>
                 <Button
                   fullWidth
-                  variant="contained"
+                  variant="outlined"
                   sx={{
-                    backgroundColor: "deeppink",
-                    color: "white",
+                    borderColor: colors.primary,
+                    color: colors.primary,
+                    fontWeight: 600,
                     borderRadius: "8px",
                     textTransform: "none",
-                    fontWeight: 700,
-                    letterSpacing: 0.5,
                     py: 1,
-                    boxShadow: "0 4px 12px rgba(255, 20, 147, 0.3)",
+                    letterSpacing: 0.5,
                     "&:hover": {
-                      backgroundColor: "#c71585",
-                      transform: "translateY(-2px)",
-                      boxShadow: "0 6px 16px rgba(255, 20, 147, 0.4)",
+                      backgroundColor: "rgba(190, 57, 0, 0.05)",
+                      borderColor: colors.primary,
                     },
-                    transition: "all 0.3s ease",
                   }}
                 >
-                  Add to Cart
+                  View Product
                 </Button>
               </CardActions>
             </Card>
           </SwiperSlide>
         ))}
       </Swiper>
+      <style>
+  {`
+    .swiper-pagination-bullet {
+      background-color: #ddd !important;
+      opacity: 1 !important;
+    }
+
+    .swiper-pagination-bullet-active {
+      background-color: ${colors.primary} !important;
+    }
+
+    .swiper-pagination {
+      bottom: 8px !important;
+    }
+  `}
+</style>
+
     </Box>
   );
 };

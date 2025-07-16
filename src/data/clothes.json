@@ -3,119 +3,265 @@
     "id": "G001",
     "name": "Embroidered Anarkali Suit",
     "price": 799,
+    "marketPrice": 1199,
     "category": "Ethnic Wear",
     "image": "https://indranistore.com/cdn/shop/files/33_00d9c96f-6d9f-460c-bb84-c1bccf8c0d21.jpg?v=1738496167&width=823",
     "sizes": ["XS", "S", "M", "L"],
     "inStock": true,
     "description": "Elegant Anarkali suit with intricate floral embroidery, perfect for festive gatherings and cultural celebrations.",
-        "isNewArrival": true
+    "isNewArrival": true
   },
   {
-    "id": "G002",
-    "name": "Festive Lehenga Choli",
-    "price": 1499,
-    "category": "Ethnic Wear",
-    "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSqhjHkp137vthmRrQqZKRObLM5XZPmWQIGfspqXMQNwyI5wfYCjJymkYUkbjX2QCxmxC5-b-TQoVUgp_53O6jbg1FVwrecYifwVPMae9Q",
+    "id": "G007",
+    "name": "Traditional Co-ord Kurti Set",
+    "price": 1399,
+    "marketPrice": 1799,
+    "category": "Co-ords",
+    "image": "https://www.misri.in/cdn/shop/files/SPP_3322.jpg?v=1745059891&width=1200",
     "sizes": ["S", "M", "L"],
     "inStock": true,
-    "description": "Vibrant lehenga choli with zari work, ideal for weddings and grand festive occasions.",
-"isNewArrival": true
+    "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
+    "isNewArrival": true
   },
   {
-    "id": "G003",
-    "name": "Traditional Saree",
-    "price": 999,
-    "category": "Ethnic Wear",
-    "image": "https://zaribanaras.com/cdn/shop/files/1_9e812c7e-75bd-4122-ac09-0736bdeb94c5_1024x1024.jpg?v=1691056879",
-    "sizes": ["XS", "S", "M", "L"],
+    "id": "G007",
+    "name": "Traditional Co-ord Kurti Set",
+    "price": 1399,
+    "marketPrice": 1799,
+    "category": "Co-ords",
+    "image": "https://www.misri.in/cdn/shop/files/SPP_3322.jpg?v=1745059891&width=1200",
+    "sizes": ["S", "M", "L"],
     "inStock": true,
-        "description": "Classic silk saree with traditional motifs, perfect for religious ceremonies and family events.",
-        "isNewArrival": false
-
+    "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
+    "isNewArrival": true
   },
   {
-    "id": "G004",
-    "name": "Heavy Embroidered Kurti Set",
-    "price": 1199,
-    "category": "Ethnic Wear",
-    "image": "https://www.torani.in/cdn/shop/products/26-11-22TORANILOOKBOOK675_700x.jpg?v=1672234515",
-    "sizes": ["M", "L", "XL"],
+    "id": "G007",
+    "name": "Traditional Co-ord Kurti Set",
+    "price": 1399,
+    "marketPrice": 1799,
+    "category": "Co-ords",
+    "image": "https://www.misri.in/cdn/shop/files/SPP_3322.jpg?v=1745059891&width=1200",
+    "sizes": ["S", "M", "L"],
     "inStock": true,
-        "description": "Richly embroidered kurti with palazzo, designed for elegant festive and ritual wear.",
-        "isNewArrival": false
-
+    "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G007",
+    "name": "Traditional Co-ord Kurti Set",
+    "price": 1399,
+    "marketPrice": 1799,
+    "category": "Co-ords",
+    "image": "https://www.misri.in/cdn/shop/files/SPP_3322.jpg?v=1745059891&width=1200",
+    "sizes": ["S", "M", "L"],
+    "inStock": true,
+    "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G007",
+    "name": "Traditional Co-ord Kurti Set",
+    "price": 1399,
+    "marketPrice": 1799,
+    "category": "Co-ords",
+    "image": "https://www.misri.in/cdn/shop/files/SPP_3322.jpg?v=1745059891&width=1200",
+    "sizes": ["S", "M", "L"],
+    "inStock": true,
+    "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
+    "isNewArrival": true
   },
   {
     "id": "G005",
     "name": "Festive Gown with Zari Work",
     "price": 2499,
+    "marketPrice": 2999,
     "category": "Dresses",
     "image": "https://adn-static1.nykaa.com/nykdesignstudio-images/pub/media/catalog/product/c/b/cb5c7d7DF5703_1.jpg?rnd=20200526195200&tr=w-1080",
     "sizes": ["S", "M", "L"],
     "inStock": false,
-        "description": "Stunning floor-length gown with golden zari work, ideal for evening parties and celebrations.",
-        "isNewArrival": true
-
-  },
-  {
-    "id": "G006",
-    "name": "Printed Sharara Set",
-    "price": 899,
-    "category": "Ethnic Wear",
-    "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcROD8zJ20ZbITiW3HllUOrwzbgag5pDE_tZMo8FFaZFhreBYGCMqPCRIspHENEvj2UZW6njNEEAVEyvkoEsLI965ck76HIM5rvZzeJMN4M",
-    "sizes": ["XS", "S", "M"],
-    "inStock": true,
-        "description": "Colorful sharara set with floral prints, perfect for casual festive gatherings.",
-        "isNewArrival": false
-
-  },
-  {
-"id": "G007",
-    "name": "Traditional Co-ord Kurti Set",
-    "price": 1399,
-    "category": "Co-ords",
-    "image": "https://www.misri.in/cdn/shop/files/SPP_3322.jpg?v=1745059891&width=1200",
-    "sizes": ["S", "M", "L"],
-    "inStock": true,
-        "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
-        "isNewArrival": true
-
-  },
-  {
-    "id": "G008",
-    "name": "Bridal Lehenga Choli",
-    "price": 2999,
-    "category": "Ethnic Wear",
-    "image": "https://adn-static1.nykaa.com/nykdesignstudio-images/pub/media/catalog/product/4/3/4326674A001_1.jpg?rnd=20200526195200&tr=w-1080",
-    "sizes": ["S", "M", "L", "XL"],
-    "inStock": true,
-        "description": "Luxurious bridal lehenga choli with heavy embroidery, crafted for weddings and grand events.",
-        "isNewArrival": true
-
-  },
-  {
-    "id": "G009",
-    "name": "Festive Jumpsuit with Embroidery",
-    "price": 1299,
-    "category": "Jumpsuits",
-    "image": "https://www.bullionknot.com/cdn/shop/files/Saanya_Serenity_min_4.jpg?v=1746187425&width=1000",
-    "sizes": ["XS", "S", "M"],
-    "inStock": true,
-        "description": "Modern jumpsuit with intricate embroidery, blending tradition with contemporary style.",
-        "isNewArrival": true
-        
-
+    "description": "Stunning floor-length gown with golden zari work, ideal for evening parties and celebrations.",
+    "isNewArrival": true
   },
   {
     "id": "G010",
     "name": "Layered Festive Anarkali",
     "price": 1099,
+    "marketPrice": 1399,
     "category": "Dresses",
     "image": "https://www.torani.in/cdn/shop/files/4_ecc0e473-9eef-4ff4-bd23-02b497ef3149_700x.png?v=1716987881",
     "sizes": ["S", "M"],
     "inStock": true,
-        "description": "Graceful layered Anarkali with vibrant colors, ideal for festive and cultural occasions.",
-        "isNewArrival": false
-
+    "description": "Graceful layered Anarkali with vibrant colors, ideal for festive and cultural occasions.",
+    "isNewArrival": false
+  },
+  {
+    "id": "G005",
+    "name": "Festive Gown with Zari Work",
+    "price": 2499,
+    "marketPrice": 2999,
+    "category": "Dresses",
+    "image": "https://adn-static1.nykaa.com/nykdesignstudio-images/pub/media/catalog/product/c/b/cb5c7d7DF5703_1.jpg?rnd=20200526195200&tr=w-1080",
+    "sizes": ["S", "M", "L"],
+    "inStock": false,
+    "description": "Stunning floor-length gown with golden zari work, ideal for evening parties and celebrations.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G010",
+    "name": "Layered Festive Anarkali",
+    "price": 1099,
+    "marketPrice": 1399,
+    "category": "Dresses",
+    "image": "https://www.torani.in/cdn/shop/files/4_ecc0e473-9eef-4ff4-bd23-02b497ef3149_700x.png?v=1716987881",
+    "sizes": ["S", "M"],
+    "inStock": true,
+    "description": "Graceful layered Anarkali with vibrant colors, ideal for festive and cultural occasions.",
+    "isNewArrival": false
+  },
+  {
+    "id": "G005",
+    "name": "Festive Gown with Zari Work",
+    "price": 2499,
+    "marketPrice": 2999,
+    "category": "Dresses",
+    "image": "https://adn-static1.nykaa.com/nykdesignstudio-images/pub/media/catalog/product/c/b/cb5c7d7DF5703_1.jpg?rnd=20200526195200&tr=w-1080",
+    "sizes": ["S", "M", "L"],
+    "inStock": false,
+    "description": "Stunning floor-length gown with golden zari work, ideal for evening parties and celebrations.",
+    "isNewArrival": true
+  },
+ 
+  {
+    "id": "G001",
+    "name": "Embroidered Anarkali Suit",
+    "price": 799,
+    "marketPrice": 1199,
+    "category": "Ethnic Wear",
+    "image": "https://indranistore.com/cdn/shop/files/33_00d9c96f-6d9f-460c-bb84-c1bccf8c0d21.jpg?v=1738496167&width=823",
+    "sizes": ["XS", "S", "M", "L"],
+    "inStock": true,
+    "description": "Elegant Anarkali suit with intricate floral embroidery, perfect for festive gatherings and cultural celebrations.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G002",
+    "name": "Festive Lehenga Choli",
+    "price": 1499,
+    "marketPrice": 1999,
+    "category": "Ethnic Wear",
+    "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSqhjHkp137vthmRrQqZKRObLM5XZPmWQIGfspqXMQNwyI5wfYCjJymkYUkbjX2QCxmxC5-b-TQoVUgp_53O6jbg1FVwrecYifwVPMae9Q",
+    "sizes": ["S", "M", "L"],
+    "inStock": true,
+    "description": "Vibrant lehenga choli with zari work, ideal for weddings and grand festive occasions.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G003",
+    "name": "Traditional Saree",
+    "price": 999,
+    "marketPrice": 1299,
+    "category": "Ethnic Wear",
+    "image": "https://zaribanaras.com/cdn/shop/files/1_9e812c7e-75bd-4122-ac09-0736bdeb94c5_1024x1024.jpg?v=1691056879",
+    "sizes": ["XS", "S", "M", "L"],
+    "inStock": true,
+    "description": "Classic silk saree with traditional motifs, perfect for religious ceremonies and family events.",
+    "isNewArrival": false
+  },
+  {
+    "id": "G004",
+    "name": "Heavy Embroidered Kurti Set",
+    "price": 1199,
+    "marketPrice": 1499,
+    "category": "Ethnic Wear",
+    "image": "https://www.torani.in/cdn/shop/products/26-11-22TORANILOOKBOOK675_700x.jpg?v=1672234515",
+    "sizes": ["M", "L", "XL"],
+    "inStock": true,
+    "description": "Richly embroidered kurti with palazzo, designed for elegant festive and ritual wear.",
+    "isNewArrival": false
+  },
+  {
+    "id": "G006",
+    "name": "Printed Sharara Set",
+    "price": 899,
+    "marketPrice": 1099,
+    "category": "Ethnic Wear",
+    "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcROD8zJ20ZbITiW3HllUOrwzbgag5pDE_tZMo8FFaZFhreBYGCMqPCRIspHENEvj2UZW6njNEEAVEyvkoEsLI965ck76HIM5rvZzeJMN4M",
+    "sizes": ["XS", "S", "M"],
+    "inStock": true,
+    "description": "Colorful sharara set with floral prints, perfect for casual festive gatherings.",
+    "isNewArrival": false
+  },
+  {
+    "id": "G008",
+    "name": "Bridal Lehenga Choli",
+    "price": 2999,
+    "marketPrice": 3999,
+    "category": "Ethnic Wear",
+    "image": "https://adn-static1.nykaa.com/nykdesignstudio-images/pub/media/catalog/product/4/3/4326674A001_1.jpg?rnd=20200526195200&tr=w-1080",
+    "sizes": ["S", "M", "L", "XL"],
+    "inStock": true,
+    "description": "Luxurious bridal lehenga choli with heavy embroidery, crafted for weddings and grand events.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G009",
+    "name": "Festive Jumpsuit with Embroidery",
+    "price": 1299,
+    "marketPrice": 1599,
+    "category": "Jumpsuits",
+    "image": "https://www.bullionknot.com/cdn/shop/files/Saanya_Serenity_min_4.jpg?v=1746187425&width=1000",
+    "sizes": ["XS", "S", "M"],
+    "inStock": true,
+    "description": "Modern jumpsuit with intricate embroidery, blending tradition with contemporary style.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G009",
+    "name": "Festive Jumpsuit with Embroidery",
+    "price": 1299,
+    "marketPrice": 1599,
+    "category": "Jumpsuits",
+    "image": "https://www.bullionknot.com/cdn/shop/files/Saanya_Serenity_min_4.jpg?v=1746187425&width=1000",
+    "sizes": ["XS", "S", "M"],
+    "inStock": true,
+    "description": "Modern jumpsuit with intricate embroidery, blending tradition with contemporary style.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G009",
+    "name": "Festive Jumpsuit with Embroidery",
+    "price": 1299,
+    "marketPrice": 1599,
+    "category": "Jumpsuits",
+    "image": "https://www.bullionknot.com/cdn/shop/files/Saanya_Serenity_min_4.jpg?v=1746187425&width=1000",
+    "sizes": ["XS", "S", "M"],
+    "inStock": true,
+    "description": "Modern jumpsuit with intricate embroidery, blending tradition with contemporary style.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G009",
+    "name": "Festive Jumpsuit with Embroidery",
+    "price": 1299,
+    "marketPrice": 1599,
+    "category": "Jumpsuits",
+    "image": "https://www.bullionknot.com/cdn/shop/files/Saanya_Serenity_min_4.jpg?v=1746187425&width=1000",
+    "sizes": ["XS", "S", "M"],
+    "inStock": true,
+    "description": "Modern jumpsuit with intricate embroidery, blending tradition with contemporary style.",
+    "isNewArrival": true
+  },
+  {
+    "id": "G009",
+    "name": "Festive Jumpsuit with Embroidery",
+    "price": 1299,
+    "marketPrice": 1599,
+    "category": "Jumpsuits",
+    "image": "https://www.bullionknot.com/cdn/shop/files/Saanya_Serenity_min_4.jpg?v=1746187425&width=1000",
+    "sizes": ["XS", "S", "M"],
+    "inStock": true,
+    "description": "Modern jumpsuit with intricate embroidery, blending tradition with contemporary style.",
+    "isNewArrival": true
   }
 ]
