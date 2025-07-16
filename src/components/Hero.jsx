@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import SwipeableViews from "react-swipeable-views";
+import { useSwipeable } from "react-swipeable";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import colors from "../colors";
 
@@ -21,32 +21,43 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => setIndex((prev) => (prev + 1) % banners.length),
+    onSwipedRight: () =>
+      setIndex((prev) => (prev - 1 + banners.length) % banners.length),
+    trackMouse: true,
+  });
+
   return (
     <Box
+      {...swipeHandlers}
       sx={{
         width: "100%",
-height: {
-  sm: "calc(100vh - 64px)",
-  md: "calc(100vh - 72px)",
-},
+        height: {
+          sm: "calc(100vh - 64px)",
+          md: "calc(100vh - 72px)",
+        },
         minHeight: isMobile ? "300px" : "400px",
         overflow: "hidden",
         position: "relative",
       }}
     >
-      <SwipeableViews
-        index={index}
-        onChangeIndex={setIndex}
-        enableMouseEvents
-        style={{ height: "100%" }}
-        containerStyle={{ height: "100%" }}
+      {/* Slide container */}
+      <Box
+        sx={{
+          display: "flex",
+          width: `${banners.length * 100}%`,
+          transform: `translateX(-${index * (100 / banners.length)}%)`,
+          transition: "transform 0.6s ease",
+          height: "100%",
+        }}
       >
         {banners.map((image, i) => (
           <Box
             key={i}
             sx={{
+              width: `${100 / banners.length}%`,
               height: "100%",
-              width: "100%",
               backgroundImage: `url(${image})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
@@ -54,7 +65,7 @@ height: {
             }}
           />
         ))}
-      </SwipeableViews>
+      </Box>
 
       {/* Dot Indicators */}
       <Box
@@ -70,12 +81,14 @@ height: {
         {banners.map((_, i) => (
           <Box
             key={i}
+            onClick={() => setIndex(i)}
             sx={{
               width: 10,
               height: 10,
               borderRadius: "50%",
               backgroundColor: index === i ? colors.primary : "#ccc",
               transition: "all 0.3s ease",
+              cursor: "pointer",
             }}
           />
         ))}
