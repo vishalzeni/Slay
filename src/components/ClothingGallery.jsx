@@ -6,7 +6,6 @@ import {
   CardMedia,
   CardContent,
   Chip,
-  Button,
   IconButton,
   useTheme,
   useMediaQuery
@@ -150,7 +149,7 @@ const ClothingGallery = () => {
                       image={item.image}
                       alt={item.name}
                       sx={{
-                        height: { xs: 160, sm: 220 },
+                        height: { xs: 220, sm: 300 }, // Increased height
                         objectFit: "cover",
                         borderTopLeftRadius: 12,
                         borderTopRightRadius: 12
@@ -173,14 +172,14 @@ const ClothingGallery = () => {
                       />
                     )}
 
-                    <CardContent sx={{ px: 2, py: 2 }}>
-                      <Typography variant="subtitle1" sx={{ minHeight: 44, mb: 1 }}>
+                    <CardContent sx={{ px: 2, py: 1 }}>
+                      <Typography variant="subtitle1" sx={{  mb: 1 }}>
                         {item.name}
                       </Typography>
 
                       <Box sx={{ textAlign: "center", mb: 1 }}>
                         <Typography variant="h6" sx={{ color: colors.primary }}>
-                          ₹{item.price}
+                          ₹{item.price.toLocaleString()}
                         </Typography>
 
                         {item.marketPrice > item.price && (
@@ -215,24 +214,6 @@ const ClothingGallery = () => {
                           </Box>
                         )}
                       </Box>
-
-                      <Button
-                        variant="outlined"
-                        fullWidth
-                        sx={{
-                          borderColor: colors.primary,
-                          color: colors.primary,
-                          fontWeight: 600,
-                          py: 0.8,
-                          fontSize: "0.85rem",
-                          "&:hover": {
-                            backgroundColor: "rgba(190, 57, 0, 0.05)",
-                            borderColor: colors.primary
-                          }
-                        }}
-                      >
-                        View Product
-                      </Button>
                     </CardContent>
                   </PremiumCard>
                 </Box>

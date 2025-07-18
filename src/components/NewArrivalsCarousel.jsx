@@ -8,6 +8,7 @@ import {
   CardActions,
   Button,
   IconButton,
+  Chip,
 } from "@mui/material";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
@@ -172,30 +173,72 @@ const NewArrivalsCarousel = () => {
               </Box>
 
               <CardContent sx={{ flexGrow: 1, px: 2, py: 2 }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: 700,
-                    color: "#222",
-                    mb: 0.5,
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {item.name}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: colors.primary,
-                    fontWeight: 600,
-                    fontSize: "1rem",
-                  }}
-                >
-                  ₹{item.price.toLocaleString()}
-                </Typography>
-              </CardContent>
+  <Typography
+    variant="subtitle1"
+    sx={{
+      color: "#222",
+      mb: 0.5,
+      textAlign: "center",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      fontWeight: 400, // not bold
+    }}
+  >
+    {item.name}
+  </Typography>
+
+  {/* Price + Offer */}
+  <Box sx={{ mb: 0.5, textAlign: "center" }}>
+    <Typography
+      variant="body2"
+      sx={{
+        color: colors.primary,
+        fontSize: "1rem",
+        fontWeight: 600, // not bold
+      }}
+    >
+      ₹{item.price.toLocaleString()}
+    </Typography>
+
+    {item.marketPrice > item.price && (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 1,
+          mt: 0.5,
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            color: "#888",
+            textDecoration: "line-through",
+            fontSize: "0.85rem",
+            fontWeight: 400,
+          }}
+        >
+          ₹{item.marketPrice.toLocaleString()}
+        </Typography>
+        <Chip
+          label={`${Math.round(
+            ((item.marketPrice - item.price) / item.marketPrice) * 100
+          )}% OFF`}
+          size="small"
+          sx={{
+            backgroundColor: "rgba(190, 57, 0, 0.1)",
+            color: colors.primary,
+            fontSize: "0.75rem",
+            fontWeight: 600,
+          }}
+        />
+      </Box>
+    )}
+  </Box>
+</CardContent>
+
 
               <CardActions sx={{ px: 2, pb: 2 }}>
                 <Button
@@ -222,23 +265,23 @@ const NewArrivalsCarousel = () => {
           </SwiperSlide>
         ))}
       </Swiper>
+
       <style>
-  {`
-    .swiper-pagination-bullet {
-      background-color: #ddd !important;
-      opacity: 1 !important;
-    }
+        {`
+          .swiper-pagination-bullet {
+            background-color: #ddd !important;
+            opacity: 1 !important;
+          }
 
-    .swiper-pagination-bullet-active {
-      background-color: ${colors.primary} !important;
-    }
+          .swiper-pagination-bullet-active {
+            background-color: ${colors.primary} !important;
+          }
 
-    .swiper-pagination {
-      bottom: 8px !important;
-    }
-  `}
-</style>
-
+          .swiper-pagination {
+            bottom: 8px !important;
+          }
+        `}
+      </style>
     </Box>
   );
 };
