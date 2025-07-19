@@ -24,6 +24,7 @@ import {
   Menu as MenuIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
+import logo from "../assets/SUMAN.png"; // Assuming you have a logo image
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: colors.background,
@@ -32,7 +33,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   top: 0,
   zIndex: theme.zIndex.appBar,
 }));
-
 
 const NavButton = styled(Button)(({ theme }) => ({
   color: colors.icon,
@@ -69,20 +69,6 @@ const NavButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-
-const LogoText = styled(Typography)(({ theme }) => ({
-  fontWeight: 700,
-  letterSpacing: 1.5,
-  color: colors.primary,
-  fontSize: "1.5rem",
-  textTransform: "uppercase",
-  whiteSpace: "nowrap",
-  [theme.breakpoints.up("md")]: {
-    fontSize: "1.75rem",
-  },
-}));
-
-
 const IconWrapper = styled(IconButton)(({ theme }) => ({
   color: colors.icon,
   padding: theme.spacing(1),
@@ -95,7 +81,6 @@ const IconWrapper = styled(IconButton)(({ theme }) => ({
     padding: theme.spacing(1, 1.5),
   },
 }));
-
 
 function Header() {
   const theme = useTheme();
@@ -111,15 +96,19 @@ function Header() {
   return (
     <>
       <StyledAppBar>
-       <Toolbar
-  sx={{
-    position: "relative",
-    justifyContent: "space-between",
-    px: { xs: 1, sm: 2, md: 4 },
-    minHeight: {  sm: "64px", md: "72px" }, // <-- responsive heights
-  }}
->
-
+        <Toolbar
+          sx={{
+            position: "relative",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: { xs: 1, sm: 2, md: 4 },
+            minHeight: {
+              xs: "60px",
+              sm: "64px",
+              md: "72px",
+            },
+          }}
+        >
           {/* Left: Menu on Mobile */}
           <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
             {isTablet || isMobile ? (
@@ -145,7 +134,26 @@ function Header() {
               flexGrow: isMobile ? 1 : 0,
             }}
           >
-            <LogoText variant="h1">Slay</LogoText>
+            <Box
+              component="img"
+              src={logo}
+              alt="Logo"
+              sx={{
+                height: {
+                  xs: 56, // bumped up slightly for phones
+                  sm: 60,
+                  md: 62,
+                  lg: 70,
+                },
+                mixBlendMode: "multiply",
+                objectFit: "contain",
+                maxWidth: {
+                  xs: "160px", // keep it tighter on very small screens
+                  sm: "180px",
+                  md: "200px",
+                },
+              }}
+            />
           </Box>
 
           {/* Right: Icons */}

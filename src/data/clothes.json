@@ -1,16 +1,22 @@
 [
   {
-    "id": "G001",
-    "name": "Embroidered Anarkali Suit",
-    "price": 799,
-    "marketPrice": 1199,
-    "category": "Ethnic Wear",
-    "image": "https://indranistore.com/cdn/shop/files/33_00d9c96f-6d9f-460c-bb84-c1bccf8c0d21.jpg?v=1738496167&width=823",
-    "sizes": ["XS", "S", "M", "L"],
-    "inStock": true,
-    "description": "Elegant Anarkali suit with intricate floral embroidery, perfect for festive gatherings and cultural celebrations.",
-    "isNewArrival": true
-  },
+  "id": "G001",
+  "name": "Embroidered Anarkali Suit",
+  "price": 799,
+  "marketPrice": 1199,
+  "category": "Ethnic Wear",
+  "image": "https://indranistore.com/cdn/shop/files/33_00d9c96f-6d9f-460c-bb84-c1bccf8c0d21.jpg?v=1738496167&width=823",
+  "images": [
+    "https://indranistore.com/cdn/shop/files/33_00d9c96f-6d9f-460c-bb84-c1bccf8c0d21.jpg?v=1738496167&width=823",
+    "https://indranistore.com/cdn/shop/files/30_a18d174f-92e2-40f8-8e7f-07a5f4a4083f.jpg?v=1738496167&width=823",
+    "https://indranistore.com/cdn/shop/files/31_3a7ed138-796e-471f-b29f-086c8b0eb14b.jpg?v=1738496167&width=823",
+    "https://indranistore.com/cdn/shop/files/32_bdd4769a-c202-4031-bd14-9430d7795079.jpg?v=1738496167&width=823"
+  ],
+  "sizes": ["XS", "S", "M", "L"],
+  "inStock": true,
+  "description": "Elegant Anarkali suit with intricate floral embroidery, perfect for festive gatherings and cultural celebrations.",
+  "isNewArrival": true
+},
   {
     "id": "G007",
     "name": "Traditional Co-ord Kurti Set",

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -7,8 +8,6 @@ import {
   CardContent,
   Chip,
   IconButton,
-  useTheme,
-  useMediaQuery
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
@@ -44,8 +43,6 @@ const PremiumCard = styled(Card)(({ theme }) => ({
 
 const ClothingGallery = () => {
   const groupedItems = groupByCategory(data);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const scrollRefs = useRef({});
   const [showNav, setShowNav] = useState({});
 
@@ -143,6 +140,8 @@ const ClothingGallery = () => {
             >
               {items.map((item) => (
                 <Box key={item.id} sx={{ flex: "0 0 auto", scrollSnapAlign: "start", mt: 2 }}>
+                  <Link to={`/product/${item.id}`} style={{ textDecoration: 'none' }}>
+
                   <PremiumCard>
                     <CardMedia
                       component="img"
@@ -216,6 +215,7 @@ const ClothingGallery = () => {
                       </Box>
                     </CardContent>
                   </PremiumCard>
+                  </Link>
                 </Box>
               ))}
             </Box>

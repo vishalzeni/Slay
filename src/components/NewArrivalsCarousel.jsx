@@ -1,4 +1,5 @@
-import React from "react";
+import { Link } from "react-router-dom";
+
 import {
   Box,
   Typography,
@@ -116,6 +117,8 @@ const NewArrivalsCarousel = () => {
       >
         {newArrivals.map((item) => (
           <SwiperSlide key={item.id}>
+                              <Link to={`/product/${item.id}`} style={{ textDecoration: 'none' }}>
+            
             <Card
               sx={{
                 height: "100%",
@@ -262,6 +265,7 @@ const NewArrivalsCarousel = () => {
                 </Button>
               </CardActions>
             </Card>
+          </Link>
           </SwiperSlide>
         ))}
       </Swiper>

@@ -1,28 +1,26 @@
 import './App.css';
-import Header from './components/Header.jsx';
-import Hero from './components/Hero.jsx';
-import ClothingGallery from './components/ClothingGallery.jsx';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import NewArrivalsCarousel from './components/NewArrivalsCarousel.jsx';
-import CustomerReviews from './components/CustomerReviews.jsx';
-import Footer from './components/Footer.jsx';
+
 import '@fontsource/poppins/300.css';
 import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
+import Home from './Home';
+import ProductDetail from './components/ProductDetail';
 
 
 function App() {
   return (
     <div className="App">
-      <Header/>
-       <Hero/>
-      <ClothingGallery/>
-      <NewArrivalsCarousel/>
-      <CustomerReviews/>
-      <Footer/> 
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+      </Routes>
+    </Router>
     </div>
   );
 }
