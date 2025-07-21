@@ -10,7 +10,8 @@ import {
   Divider,
 } from "@mui/material";
 import { Facebook, Instagram, Twitter, YouTube } from "@mui/icons-material";
-import colors from "../colors"; // Update path if necessary
+import colors from "../colors";
+import logo from "../assets/SUMAN.png"; // ✅ Your Logo
 
 const socialIcons = [
   { icon: Facebook, label: "Facebook" },
@@ -32,19 +33,19 @@ const Footer = () => {
       }}
     >
       <Grid container spacing={{ xs: 3, md: 5 }} justifyContent="center">
-        {/* Brand Description */}
+        {/* Brand Section with Logo */}
         <Grid item xs={12} md={4} lg={3}>
-          <Typography
-            variant="h5"
+          <Box
+            component="img"
+            src={logo}
+            alt="Brand Logo"
             sx={{
-              fontWeight: 700,
-              color: colors.primary,
+              height: { xs: 44, sm: 48, md: 56 },
+              maxWidth: "100%",
               mb: 2,
-              fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" },
+              objectFit: "contain",
             }}
-          >
-            Slay
-          </Typography>
+          />
           <Typography
             variant="body1"
             sx={{
@@ -96,7 +97,7 @@ const Footer = () => {
           </Box>
         </Grid>
 
-        {/* Footer Links */}
+        {/* Footer Navigation Links */}
         {[
           { title: "Shop", links: ["New Arrivals", "Best Sellers", "Sale", "Collections"] },
           { title: "Support", links: ["Help Center", "Shipping Info", "Returns", "Contact Us"] },
@@ -137,7 +138,7 @@ const Footer = () => {
           </Grid>
         ))}
 
-        {/* Newsletter */}
+        {/* Newsletter Signup */}
         <Grid item xs={12} sm={8} md={4} lg={3}>
           <Typography
             variant="subtitle2"
@@ -234,6 +235,7 @@ const Footer = () => {
         </Grid>
       </Grid>
 
+      {/* Divider */}
       <Divider
         sx={{
           my: 3,
@@ -262,7 +264,7 @@ const Footer = () => {
             fontSize: "0.85rem",
           }}
         >
-          © {new Date().getFullYear()} Slay. All rights reserved.
+          © {new Date().getFullYear()} Suman. All rights reserved.
         </Typography>
 
         <Box

@@ -10,6 +10,7 @@ import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
 import Home from './Home';
 import ProductDetail from './components/ProductDetail';
+import CategoryPage from './components/CategoryPage';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+<Route path="/category/:categoryName" element={<CategoryPage />} />
       </Routes>
     </Router>
     </div>

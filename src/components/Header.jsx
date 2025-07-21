@@ -4,7 +4,6 @@ import {
   AppBar,
   Box,
   Toolbar,
-  Typography,
   IconButton,
   Button,
   Badge,
@@ -23,12 +22,13 @@ import {
   AccountCircle as AccountCircleIcon,
   Menu as MenuIcon,
   Close as CloseIcon,
+  ChevronRightOutlined,
 } from "@mui/icons-material";
 import logo from "../assets/SUMAN.png"; // Assuming you have a logo image
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: colors.background,
-  boxShadow: "0 2px 4px rgba(122, 78, 171, 0.1)", // subtle shadow
+  boxShadow: "0 2px 4px rgba(122, 78, 171, 0.1)",
   position: "sticky",
   top: 0,
   zIndex: theme.zIndex.appBar,
@@ -67,6 +67,14 @@ const NavButton = styled(Button)(({ theme }) => ({
     fontSize: "0.875rem",
     padding: theme.spacing(1, 2),
   },
+  [`@media (max-width:1400px)`]: {
+    fontSize: "0.8rem",
+    padding: theme.spacing(0.5, 1.2),
+  },
+  [`@media (max-width:1200px)`]: {
+    fontSize: "0.75rem",
+    padding: theme.spacing(0.5, 1),
+  },
 }));
 
 const IconWrapper = styled(IconButton)(({ theme }) => ({
@@ -86,11 +94,9 @@ function Header() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
-
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const toggleDrawer = (open: boolean) => () => setDrawerOpen(open);
-
   const navItems = ["New Arrivals", "Our Collection", "Sale", "Contact Us"];
 
   return (
@@ -109,7 +115,7 @@ function Header() {
             },
           }}
         >
-          {/* Left: Menu on Mobile */}
+          {/* Left: Nav or Hamburger */}
           <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
             {isTablet || isMobile ? (
               <IconWrapper onClick={toggleDrawer(true)} aria-label="menu">
@@ -140,7 +146,7 @@ function Header() {
               alt="Logo"
               sx={{
                 height: {
-                  xs: 56, // bumped up slightly for phones
+                  xs: 56,
                   sm: 60,
                   md: 62,
                   lg: 70,
@@ -148,7 +154,7 @@ function Header() {
                 mixBlendMode: "multiply",
                 objectFit: "contain",
                 maxWidth: {
-                  xs: "160px", // keep it tighter on very small screens
+                  xs: "160px",
                   sm: "180px",
                   md: "200px",
                 },
@@ -156,7 +162,7 @@ function Header() {
             />
           </Box>
 
-          {/* Right: Icons */}
+          {/* Right Icons */}
           <Box
             sx={{
               display: "flex",
@@ -213,26 +219,29 @@ function Header() {
           }}
           role="presentation"
         >
-          {/* Top Header */}
+          {/* Top: Logo */}
           <Box>
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                p: 2,
+                px: 1,
+                py: 1.5,
                 backgroundColor: colors.accent,
               }}
             >
-              <Typography
-                variant="h6"
+              <Box
+                component="img"
+                src={logo}
+                alt="Logo"
                 sx={{
-                  fontWeight: 600,
-                  color: colors.primary,
+                  height: 36,
+                  objectFit: "contain",
+                  mixBlendMode: "multiply",
+                  maxWidth: "100px",
                 }}
-              >
-                Menu
-              </Typography>
+              />
               <IconButton onClick={toggleDrawer(false)}>
                 <CloseIcon sx={{ color: colors.primary }} />
               </IconButton>
@@ -240,13 +249,40 @@ function Header() {
 
             <Divider />
 
-            <List>
+            {/* Nav Items */}
+            <List disablePadding>
               {navItems.map((text) => (
-                <ListItem button key={text} onClick={toggleDrawer(false)}>
+                <ListItem
+                  button
+                  key={text}
+                  onClick={toggleDrawer(false)}
+                  sx={{
+                    borderTop: `1px solid ${colors.border}`,
+                    borderBottom: `1px solid ${colors.border}`,
+                    px: 2,
+                    py: 1.2,
+                    transition: "all 0.3s ease",
+                    "&:hover .arrow-icon": {
+                      transform: "translateX(6px)",
+                      opacity: 1,
+                    },
+                  }}
+                >
                   <ListItemText
                     primary={text}
                     primaryTypographyProps={{
-                      fontWeight: 600,
+                      fontWeight: 400,
+                      color: colors.primary,
+                    }}
+                  />
+                  <ChevronRightOutlined
+                    className="arrow-icon"
+                    sx={{
+                      ml: 1,
+                      fontSize: 20,
+                      transition: "all 0.3s ease",
+                      transform: "translateX(0)",
+                      opacity: 0.7,
                       color: colors.primary,
                     }}
                   />
@@ -255,15 +291,15 @@ function Header() {
             </List>
           </Box>
 
-          {/* Bottom Account Section */}
+          {/* Bottom Account */}
           <Box sx={{ borderTop: `1px solid ${colors.border}` }}>
-            <List>
+            <List disablePadding>
               <ListItem button onClick={toggleDrawer(false)}>
                 <AccountCircleIcon sx={{ color: colors.primary, mr: 1 }} />
                 <ListItemText
                   primary="My Account"
                   primaryTypographyProps={{
-                    fontWeight: 600,
+                    fontWeight: 500,
                     color: colors.primary,
                   }}
                 />

@@ -8,6 +8,7 @@ import {
   CardContent,
   Chip,
   IconButton,
+  Divider,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
@@ -34,9 +35,9 @@ const PremiumCard = styled(Card)(({ theme }) => ({
   "&:hover": {
     transform: "scale(1.03)",
     boxShadow: "0 16px 30px rgba(0,0,0,0.15)",
-    borderColor: colors.primary
+    borderColor: colors.primary,
   },
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     width: 200,
   },
 }));
@@ -67,7 +68,10 @@ const ClothingGallery = () => {
   const handleScroll = (category, direction) => {
     const container = scrollRefs.current[category];
     if (container) {
-      container.scrollBy({ left: direction === 'left' ? -300 : 300, behavior: 'smooth' });
+      container.scrollBy({
+        left: direction === "left" ? -300 : 300,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -77,8 +81,9 @@ const ClothingGallery = () => {
         px: { xs: 1, md: 4 },
         py: { xs: 4, md: 6 },
         bgcolor: colors.background,
-        backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)",
-        backgroundSize: "20px 20px"
+        backgroundImage:
+          "radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px)",
+        backgroundSize: "20px 20px",
       }}
     >
       {Object.entries(groupedItems).map(([category, items]) => (
@@ -90,7 +95,7 @@ const ClothingGallery = () => {
               color: colors.primary,
               textTransform: "uppercase",
               mb: 3,
-              letterSpacing: 1
+              letterSpacing: 1,
             }}
           >
             {category}
@@ -99,7 +104,7 @@ const ClothingGallery = () => {
           <Box sx={{ position: "relative" }}>
             {showNav[category] && (
               <IconButton
-                onClick={() => handleScroll(category, 'left')}
+                onClick={() => handleScroll(category, "left")}
                 sx={{
                   position: "absolute",
                   left: -28,
@@ -117,8 +122,8 @@ const ClothingGallery = () => {
                   justifyContent: "center",
                   "&:hover": {
                     backgroundColor: colors.primary,
-                    color: "#fff"
-                  }
+                    color: "#fff",
+                  },
                 }}
               >
                 <ChevronLeft />
@@ -135,86 +140,98 @@ const ClothingGallery = () => {
                 pb: 3,
                 scrollSnapType: "x mandatory",
                 "&::-webkit-scrollbar": { display: "none" },
-                scrollbarWidth: "none"
+                scrollbarWidth: "none",
               }}
             >
               {items.map((item) => (
-                <Box key={item.id} sx={{ flex: "0 0 auto", scrollSnapAlign: "start", mt: 2 }}>
-                  <Link to={`/product/${item.id}`} style={{ textDecoration: 'none' }}>
-
-                  <PremiumCard>
-                    <CardMedia
-                      component="img"
-                      image={item.image}
-                      alt={item.name}
-                      sx={{
-                        height: { xs: 220, sm: 300 }, // Increased height
-                        objectFit: "cover",
-                        borderTopLeftRadius: 12,
-                        borderTopRightRadius: 12
-                      }}
-                    />
-
-                    {item.isNewArrival && (
-                      <Chip
-                        label="New"
-                        size="small"
+                <Box
+                  key={item.id}
+                  sx={{ flex: "0 0 auto", scrollSnapAlign: "start", mt: 2 }}
+                >
+                  <Link
+                    to={`/product/${item.id}`}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <PremiumCard>
+                      <CardMedia
+                        component="img"
+                        image={item.image}
+                        alt={item.name}
                         sx={{
-                          position: "absolute",
-                          top: 10,
-                          left: 10,
-                          backgroundColor: colors.primary,
-                          color: "#fff",
-                          fontWeight: 600,
-                          fontSize: "0.75rem"
+                          height: { xs: 220, sm: 300 }, // Increased height
+                          objectFit: "cover",
+                          borderTopLeftRadius: 12,
+                          borderTopRightRadius: 12,
                         }}
                       />
-                    )}
 
-                    <CardContent sx={{ px: 2, py: 1 }}>
-                      <Typography variant="subtitle1" sx={{  mb: 1 }}>
-                        {item.name}
-                      </Typography>
+                      {item.isNewArrival && (
+                        <Chip
+                          label="New"
+                          size="small"
+                          sx={{
+                            position: "absolute",
+                            top: 10,
+                            left: 10,
+                            backgroundColor: colors.primary,
+                            color: "#fff",
+                            fontWeight: 600,
+                            fontSize: "0.75rem",
+                          }}
+                        />
+                      )}
 
-                      <Box sx={{ textAlign: "center", mb: 1 }}>
-                        <Typography variant="h6" sx={{ color: colors.primary }}>
-                          ₹{item.price.toLocaleString()}
+                      <CardContent sx={{ px: 2, py: 1 }}>
+                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                          {item.name}
                         </Typography>
 
-                        {item.marketPrice > item.price && (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              gap: 1,
-                              mt: 0.5
-                            }}
+                        <Box sx={{ textAlign: "center", mb: 1 }}>
+                          <Typography
+                            variant="h6"
+                            sx={{ color: colors.primary }}
                           >
-                            <Typography
-                              variant="body2"
+                            ₹{item.price.toLocaleString()}
+                          </Typography>
+
+                          {item.marketPrice > item.price && (
+                            <Box
                               sx={{
-                                color: "#888",
-                                textDecoration: "line-through"
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                gap: 1,
+                                mt: 0.5,
                               }}
                             >
-                              ₹{item.marketPrice}
-                            </Typography>
-                            <Chip
-                              label={`${Math.round(((item.marketPrice - item.price) / item.marketPrice) * 100)}% OFF`}
-                              size="small"
-                              sx={{
-                                backgroundColor: "rgba(190, 57, 0, 0.1)",
-                                color: colors.primary,
-                                fontWeight: 600,
-                                fontSize: "0.75rem"
-                              }}
-                            />
-                          </Box>
-                        )}
-                      </Box>
-                    </CardContent>
-                  </PremiumCard>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: "#888",
+                                  textDecoration: "line-through",
+                                }}
+                              >
+                                ₹{item.marketPrice}
+                              </Typography>
+                              <Chip
+                                label={`${Math.round(
+                                  ((item.marketPrice - item.price) /
+                                    item.marketPrice) *
+                                    100
+                                )}% OFF`}
+                                size="small"
+                                sx={{
+                                  backgroundColor: "rgba(190, 57, 0, 0.1)",
+                                  color: colors.primary,
+                                  fontWeight: 600,
+                                  fontSize: "0.75rem",
+                                }}
+                              />
+                            </Box>
+                          )}
+                        </Box>
+                      </CardContent>
+                    </PremiumCard>
                   </Link>
                 </Box>
               ))}
@@ -222,7 +239,7 @@ const ClothingGallery = () => {
 
             {showNav[category] && (
               <IconButton
-                onClick={() => handleScroll(category, 'right')}
+                onClick={() => handleScroll(category, "right")}
                 sx={{
                   position: "absolute",
                   right: -28,
@@ -240,14 +257,41 @@ const ClothingGallery = () => {
                   justifyContent: "center",
                   "&:hover": {
                     backgroundColor: colors.primary,
-                    color: "#fff"
-                  }
+                    color: "#fff",
+                  },
                 }}
               >
                 <ChevronRight />
               </IconButton>
             )}
           </Box>
+          <Box sx={{ mt: 2 }}>
+            <Link
+              to={`/category/${encodeURIComponent(category)}`}
+              style={{ textDecoration: "none" }}
+            >
+              <Box
+                component="button"
+                sx={{
+                  backgroundColor: colors.primary,
+                  color: colors.badgeText,
+                  px: 3.5,
+                  py: 1.5,
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  border: "none",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#a83200",
+                  },
+                }}
+              >
+                View All
+              </Box>
+            </Link>
+          </Box>
+          <Divider sx={{ my: 4, borderBottomWidth:"2px", borderColor: colors.border }} />
         </Box>
       ))}
     </Box>
