@@ -29,7 +29,7 @@ import Footer from "./Footer";
 
 const PremiumCard = styled(Card)({
   width: "100%",
-  borderRadius: 12,
+  borderRadius: 5,
   transition: "transform 0.3s ease, box-shadow 0.3s ease",
   overflow: "visible",
   position: "relative",
@@ -322,8 +322,7 @@ const CategoryPage = () => {
                         sx={{
                           height: { xs: 220, sm: 300 },
                           objectFit: "cover",
-                          borderTopLeftRadius: 12,
-                          borderTopRightRadius: 12,
+                          borderRadius: "5px 5px 0 0",
                         }}
                       />
 

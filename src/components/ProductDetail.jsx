@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import ImageMagnifier from "../utilities/ImageMagnifier"; // adjust path as needed
+
 import {
   Box,
   Typography,
@@ -137,15 +139,10 @@ const ProductDetail = () => {
                   >
                     {/* Main Image */}
 
-                    <img
+                    <ImageMagnifier
                       src={mainImage}
-                      alt={`Product of ${product.name}`}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        padding: isMobile ? "20px" : "0",
-                      }}
+                      zoom={2.5}
+                      magnifierSize={180}
                     />
 
                     {product.isNewArrival && (

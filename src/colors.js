@@ -1,6 +1,3 @@
-// src/colors.js
-// Centralized color palette for the project
-
 const colors = {
   primary: "#BE3900",       // Burnt orange (main brand color)
   background: "#FFF9F5",    // Warm creamy white (header background)

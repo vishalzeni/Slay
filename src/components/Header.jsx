@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import colors from "../colors";
 import {
   AppBar,
@@ -15,6 +16,7 @@ import {
   useMediaQuery,
   useTheme,
   Divider,
+  Link,
 } from "@mui/material";
 import {
   FavoriteBorder as FavoriteBorderIcon,
@@ -24,7 +26,7 @@ import {
   Close as CloseIcon,
   ChevronRightOutlined,
 } from "@mui/icons-material";
-import logo from "../assets/SUMAN.png"; // Assuming you have a logo image
+import logo from "../assets/SUMAN.png";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: colors.background,
@@ -97,7 +99,32 @@ function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const toggleDrawer = (open: boolean) => () => setDrawerOpen(open);
-  const navItems = ["New Arrivals", "Our Collection", "Sale", "Contact Us"];
+
+  const handleNewArrivalsClick = (e) => {
+    // If already on home page, scroll to section
+    if (window.location.pathname === "/") {
+      e.preventDefault();
+      const newArrivalsSection = document.getElementById("new-arrivals");
+      if (newArrivalsSection) {
+        newArrivalsSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    // Otherwise, let the normal navigation happen (to /#new-arrivals)
+  };
+
+  // Define all nav items with route paths
+  const navItems = [
+    { label: "Home", path: "/" },
+    {
+      label: "New Arrivals",
+      path: "/#new-arrivals",
+      onClick: handleNewArrivalsClick,
+    },
+    { label: "Our Collection", path: "/collection" },
+    { label: "Sale", path: "/sale" },
+    { label: "About", path: "/about" },
+    { label: "Contact Us", path: "/contact" },
+  ];
 
   return (
     <>
@@ -123,8 +150,15 @@ function Header() {
               </IconWrapper>
             ) : (
               <Box sx={{ display: "flex", gap: { xs: 0.5, md: 1 } }}>
-                {navItems.map((label) => (
-                  <NavButton key={label}>{label}</NavButton>
+                {navItems.slice(0, 4).map(({ label, path, onClick }) => (
+                  <NavButton
+                    key={label}
+                    component={RouterLink}
+                    to={path}
+                    onClick={onClick}
+                  >
+                    {label}
+                  </NavButton>
                 ))}
               </Box>
             )}
@@ -140,38 +174,46 @@ function Header() {
               flexGrow: isMobile ? 1 : 0,
             }}
           >
-            <Box
-              component="img"
-              src={logo}
-              alt="Logo"
-              sx={{
-                height: {
-                  xs: 56,
-                  sm: 60,
-                  md: 62,
-                  lg: 70,
-                },
-                mixBlendMode: "multiply",
-                objectFit: "contain",
-                maxWidth: {
-                  xs: "160px",
-                  sm: "180px",
-                  md: "200px",
-                },
-              }}
-            />
+            <Link component={RouterLink} to="/">
+              <Box
+                component="img"
+                src={logo}
+                alt="Logo"
+                sx={{
+                  height: {
+                    xs: 56,
+                    sm: 60,
+                    md: 62,
+                    lg: 70,
+                  },
+                  mixBlendMode: "multiply",
+                  objectFit: "contain",
+                  maxWidth: {
+                    xs: "160px",
+                    sm: "180px",
+                    md: "200px",
+                  },
+                }}
+              />
+            </Link>
           </Box>
 
-          {/* Right Icons */}
+          {/* Right Side: Remaining Buttons + Icons */}
           <Box
             sx={{
               display: "flex",
-              gap: { xs: 0, sm: 1 },
+              gap: { xs: 0.5, md: 1 },
               alignItems: "center",
               justifyContent: "flex-end",
               flex: 1,
             }}
           >
+            {!isMobile &&
+              navItems.slice(4).map(({ label, path }) => (
+                <NavButton key={label} component={RouterLink} to={path}>
+                  {label}
+                </NavButton>
+              ))}
             {!isMobile && (
               <IconWrapper aria-label="account">
                 <AccountCircleIcon />
@@ -201,7 +243,7 @@ function Header() {
         </Toolbar>
       </StyledAppBar>
 
-      {/* Mobile Drawer */}
+      {/* Drawer for mobile */}
       <SwipeableDrawer
         anchor="left"
         open={drawerOpen}
@@ -219,8 +261,8 @@ function Header() {
           }}
           role="presentation"
         >
-          {/* Top: Logo */}
           <Box>
+            {/* Drawer Top Logo + Close */}
             <Box
               sx={{
                 display: "flex",
@@ -231,17 +273,17 @@ function Header() {
                 backgroundColor: colors.accent,
               }}
             >
-              <Box
-                component="img"
-                src={logo}
-                alt="Logo"
-                sx={{
-                  height: 36,
-                  objectFit: "contain",
-                  mixBlendMode: "multiply",
-                  maxWidth: "100px",
-                }}
-              />
+              <Link component={RouterLink} to="/" onClick={toggleDrawer(false)}>
+                <Box
+                  component="img"
+                  src={logo}
+                  alt="Logo"
+                  sx={{
+                    objectFit: "contain",
+                    maxWidth: "120px",
+                  }}
+                />
+              </Link>
               <IconButton onClick={toggleDrawer(false)}>
                 <CloseIcon sx={{ color: colors.primary }} />
               </IconButton>
@@ -249,13 +291,18 @@ function Header() {
 
             <Divider />
 
-            {/* Nav Items */}
+            {/* Drawer Nav Links */}
             <List disablePadding>
-              {navItems.map((text) => (
+              {navItems.map(({ label, path, onClick }) => (
                 <ListItem
                   button
-                  key={text}
-                  onClick={toggleDrawer(false)}
+                  key={label}
+                  component={RouterLink}
+                  to={path}
+                  onClick={(e) => {
+                    toggleDrawer(false)();
+                    if (onClick) onClick(e);
+                  }}
                   sx={{
                     borderTop: `1px solid ${colors.border}`,
                     borderBottom: `1px solid ${colors.border}`,
@@ -269,7 +316,7 @@ function Header() {
                   }}
                 >
                   <ListItemText
-                    primary={text}
+                    primary={label}
                     primaryTypographyProps={{
                       fontWeight: 400,
                       color: colors.primary,
@@ -291,10 +338,10 @@ function Header() {
             </List>
           </Box>
 
-          {/* Bottom Account */}
+          {/* Bottom Account Shortcut */}
           <Box sx={{ borderTop: `1px solid ${colors.border}` }}>
             <List disablePadding>
-              <ListItem button onClick={toggleDrawer(false)}>
+              <ListItem button>
                 <AccountCircleIcon sx={{ color: colors.primary, mr: 1 }} />
                 <ListItemText
                   primary="My Account"
