@@ -17,6 +17,7 @@ import {
   useTheme,
   Divider,
   Link,
+  Tooltip,
 } from "@mui/material";
 import {
   FavoriteBorder as FavoriteBorderIcon,
@@ -145,20 +146,21 @@ function Header() {
           {/* Left: Nav or Hamburger */}
           <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
             {isTablet || isMobile ? (
-              <IconWrapper onClick={toggleDrawer(true)} aria-label="menu">
-                <MenuIcon />
-              </IconWrapper>
+              <Tooltip title="Open menu" arrow>
+                <IconWrapper onClick={toggleDrawer(true)} aria-label="menu">
+                  <MenuIcon />
+                </IconWrapper>
+              </Tooltip>
             ) : (
               <Box sx={{ display: "flex", gap: { xs: 0.5, md: 1 } }}>
                 {navItems.slice(0, 4).map(({ label, path, onClick }) => (
-                  <NavButton
-                    key={label}
-                    component={RouterLink}
-                    to={path}
-                    onClick={onClick}
-                  >
-                    {label}
-                  </NavButton>
+                    <NavButton
+                      component={RouterLink}
+                      to={path}
+                      onClick={onClick}
+                    >
+                      {label}
+                    </NavButton>
                 ))}
               </Box>
             )}
@@ -210,35 +212,41 @@ function Header() {
           >
             {!isMobile &&
               navItems.slice(4).map(({ label, path }) => (
-                <NavButton key={label} component={RouterLink} to={path}>
-                  {label}
-                </NavButton>
+                  <NavButton component={RouterLink} to={path}>
+                    {label}
+                  </NavButton>
               ))}
             {!isMobile && (
-              <IconWrapper aria-label="account">
-                <AccountCircleIcon />
-              </IconWrapper>
+              <Tooltip title="Account" arrow>
+                <IconWrapper aria-label="account" component={RouterLink} to="/signup">
+                  <AccountCircleIcon />
+                </IconWrapper>
+              </Tooltip>
             )}
-            <IconWrapper aria-label="wishlist">
-              <FavoriteBorderIcon />
-            </IconWrapper>
-            <IconWrapper aria-label="cart">
-              <Badge
-                badgeContent={2}
-                color="error"
-                sx={{
-                  "& .MuiBadge-badge": {
-                    right: 3,
-                    top: 8,
-                    backgroundColor: colors.badge,
-                    color: colors.badgeText,
-                    fontWeight: 600,
-                  },
-                }}
-              >
-                <ShoppingCartIcon />
-              </Badge>
-            </IconWrapper>
+            <Tooltip title="Wishlist" arrow>
+              <IconWrapper aria-label="wishlist">
+                <FavoriteBorderIcon />
+              </IconWrapper>
+            </Tooltip>
+            <Tooltip title="Cart" arrow>
+              <IconWrapper aria-label="cart">
+                <Badge
+                  badgeContent={2}
+                  color="error"
+                  sx={{
+                    "& .MuiBadge-badge": {
+                      right: 3,
+                      top: 8,
+                      backgroundColor: colors.badge,
+                      color: colors.badgeText,
+                      fontWeight: 600,
+                    },
+                  }}
+                >
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconWrapper>
+            </Tooltip>
           </Box>
         </Toolbar>
       </StyledAppBar>
@@ -285,7 +293,9 @@ function Header() {
                 />
               </Link>
               <IconButton onClick={toggleDrawer(false)}>
-                <CloseIcon sx={{ color: colors.primary }} />
+                <Tooltip title="Close menu" arrow>
+                  <CloseIcon sx={{ color: colors.primary }} />
+                </Tooltip>
               </IconButton>
             </Box>
 
@@ -294,46 +304,47 @@ function Header() {
             {/* Drawer Nav Links */}
             <List disablePadding>
               {navItems.map(({ label, path, onClick }) => (
-                <ListItem
-                  button
-                  key={label}
-                  component={RouterLink}
-                  to={path}
-                  onClick={(e) => {
-                    toggleDrawer(false)();
-                    if (onClick) onClick(e);
-                  }}
-                  sx={{
-                    borderTop: `1px solid ${colors.border}`,
-                    borderBottom: `1px solid ${colors.border}`,
-                    px: 2,
-                    py: 1.2,
-                    transition: "all 0.3s ease",
-                    "&:hover .arrow-icon": {
-                      transform: "translateX(6px)",
-                      opacity: 1,
-                    },
-                  }}
-                >
-                  <ListItemText
-                    primary={label}
-                    primaryTypographyProps={{
-                      fontWeight: 400,
-                      color: colors.primary,
+                <Tooltip title={label} arrow key={label}>
+                  <ListItem
+                    button
+                    component={RouterLink}
+                    to={path}
+                    onClick={(e) => {
+                      toggleDrawer(false)();
+                      if (onClick) onClick(e);
                     }}
-                  />
-                  <ChevronRightOutlined
-                    className="arrow-icon"
                     sx={{
-                      ml: 1,
-                      fontSize: 20,
+                      borderTop: `1px solid ${colors.border}`,
+                      borderBottom: `1px solid ${colors.border}`,
+                      px: 2,
+                      py: 1.2,
                       transition: "all 0.3s ease",
-                      transform: "translateX(0)",
-                      opacity: 0.7,
-                      color: colors.primary,
+                      "&:hover .arrow-icon": {
+                        transform: "translateX(6px)",
+                        opacity: 1,
+                      },
                     }}
-                  />
-                </ListItem>
+                  >
+                    <ListItemText
+                      primary={label}
+                      primaryTypographyProps={{
+                        fontWeight: 400,
+                        color: colors.primary,
+                      }}
+                    />
+                    <ChevronRightOutlined
+                      className="arrow-icon"
+                      sx={{
+                        ml: 1,
+                        fontSize: 20,
+                        transition: "all 0.3s ease",
+                        transform: "translateX(0)",
+                        opacity: 0.7,
+                        color: colors.primary,
+                      }}
+                    />
+                  </ListItem>
+                </Tooltip>
               ))}
             </List>
           </Box>
@@ -341,8 +352,10 @@ function Header() {
           {/* Bottom Account Shortcut */}
           <Box sx={{ borderTop: `1px solid ${colors.border}` }}>
             <List disablePadding>
-              <ListItem button>
-                <AccountCircleIcon sx={{ color: colors.primary, mr: 1 }} />
+              <ListItem button component={RouterLink} to="/signup" onClick={toggleDrawer(false)}>
+                <Tooltip title="Go to Account" arrow>
+                  <AccountCircleIcon sx={{ color: colors.primary, mr: 1 }} />
+                </Tooltip>
                 <ListItemText
                   primary="My Account"
                   primaryTypographyProps={{

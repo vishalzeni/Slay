@@ -1,0 +1,16 @@
+Admin panel
+add announcements in admin.
+login signUp.
+add to cart.
+wishlist.
+contact us page.
+add banner access from admin.
+add error page.
+add loading and snackbar at every point.
+
+wishlist and add to cart is related to user.
+filter out extra things from footer.
+add social links.
+show all users in admin.
+show all subscribed emails.
+sort out the categories matter.

@@ -19,6 +19,8 @@ import {
   AccordionSummary,
   AccordionDetails,
   Divider,
+  TextField,
+  Avatar,
 } from "@mui/material";
 import {
   Add,
@@ -46,9 +48,12 @@ const ProductDetail = () => {
   }, []);
 
   const product = data.find((item) => item.id === id);
-  const [mainImage, setMainImage] = useState(product.image);
+  const [mainImage, setMainImage] = useState(product?.image);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviews, setReviews] = useState(product?.reviews || []);
 
   if (!product) {
     return (
@@ -73,6 +78,21 @@ const ProductDetail = () => {
     ...(product.images?.filter((img) => img !== product.image) || []),
   ];
 
+  const handleReviewSubmit = () => {
+    if (reviewText.trim() && reviewRating > 0) {
+      const newReview = {
+        id: `${Date.now()}`,
+        rating: reviewRating,
+        comment: reviewText,
+        user: "Anonymous",
+        date: new Date().toLocaleDateString(),
+      };
+      setReviews([...reviews, newReview]);
+      setReviewText("");
+      setReviewRating(0);
+    }
+  };
+
   return (
     <>
       <Header />
@@ -80,7 +100,10 @@ const ProductDetail = () => {
         sx={{
           backgroundColor: colors.background,
           position: "relative",
-          minHeight: "100vh",
+          minHeight: "calc(100vh - 64px)", // Adjust for header height
+          paddingTop: isMobile ? 0 : 2,
+          paddingBottom: isMobile ? "80px" : "64px", // Space for sticky buttons or content
+
         }}
       >
         {/* Back button for mobile */}
@@ -138,11 +161,10 @@ const ProductDetail = () => {
                     }}
                   >
                     {/* Main Image */}
-
                     <ImageMagnifier
                       src={mainImage}
                       zoom={2.5}
-                      magnifierSize={180}
+                      magnifierSize={150}
                     />
 
                     {product.isNewArrival && (
@@ -508,6 +530,154 @@ const ProductDetail = () => {
                           </Typography>
                         </AccordionDetails>
                       </Accordion>
+
+                      {/* Reviews Accordion */}
+                      <Accordion
+                        defaultExpanded={!isMobile}
+                        sx={{
+                          backgroundColor: isMobile ? "transparent" : "#fff",
+                          mt: 2,
+                          borderRadius: 2,
+                          border: isMobile ? "none" : "1px solid #f0e6e0",
+                          boxShadow: "none",
+                        }}
+                      >
+                        <AccordionSummary expandIcon={<ExpandMore />}>
+                          <Typography fontWeight={600}>
+                            Customer Reviews
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails
+                          sx={{
+                            backgroundColor: isMobile
+                              ? "transparent"
+                              : "#f9f9f9",
+                            p: 2,
+                          }}
+                        >
+                          {/* Review Submission Form */}
+                          <Box sx={{ mb: 3 }}>
+                            <Typography
+                              variant="subtitle1"
+                              fontWeight={600}
+                              gutterBottom
+                            >
+                              Write a Review
+                            </Typography>
+                            <Stack spacing={2}>
+                              <Rating
+                                value={reviewRating}
+                                onChange={(event, newValue) =>
+                                  setReviewRating(newValue)
+                                }
+                                size={isMobile ? "medium" : "large"}
+                              />
+                              <TextField
+                                multiline
+                                rows={3}
+                                value={reviewText}
+                                onChange={(e) => setReviewText(e.target.value)}
+                                placeholder="Share your thoughts about the product..."
+                                variant="outlined"
+                                fullWidth
+                                sx={{
+                                  "& .MuiOutlinedInput-root": {
+                                    borderRadius: 2,
+                                    backgroundColor: "#fff",
+                                  },
+                                }}
+                              />
+                              <Button
+                                variant="contained"
+                                onClick={handleReviewSubmit}
+                                disabled={!reviewText.trim() || reviewRating === 0}
+                                sx={{
+                                  background: `linear-gradient(90deg, ${colors.primary} 0%, #ff7043 100%)`,
+                                  fontWeight: 600,
+                                  py: 1,
+                                  borderRadius: 2,
+                                  textTransform: "none",
+                                  width: "fit-content",
+                                  color: "#fff",
+                                  ":hover": {
+                                    background: "#a83200",
+                                  },
+                                }}
+                              >
+                                Submit Review
+                              </Button>
+                            </Stack>
+                          </Box>
+
+                          {/* Existing Reviews */}
+                          {reviews.length === 0 ? (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ fontStyle: "italic" }}
+                            >
+                              No reviews yet. Be the first to share your feedback!
+                            </Typography>
+                          ) : (
+                            <Stack spacing={2}>
+                              {reviews.map((review) => (
+                                <Box
+                                  key={review.id}
+                                  sx={{
+                                    borderBottom: `1px solid ${colors.border}`,
+                                    pb: 2,
+                                  }}
+                                >
+                                  <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={2}
+                                    mb={1}
+                                  >
+                                    <Avatar
+                                      sx={{
+                                        bgcolor: colors.primary,
+                                        width: 32,
+                                        height: 32,
+                                        fontSize: "0.9rem",
+                                      }}
+                                    >
+                                      {review.user[0]}
+                                    </Avatar>
+                                    <Box>
+                                      <Typography
+                                        variant="subtitle2"
+                                        fontWeight={600}
+                                      >
+                                        {review.user}
+                                      </Typography>
+                                      <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                      >
+                                        {review.date}
+                                      </Typography>
+                                    </Box>
+                                  </Stack>
+                                  <Rating
+                                    value={review.rating}
+                                    readOnly
+                                    size="small"
+                                    sx={{ mb: 1 }}
+                                  />
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    lineHeight={1.6}
+                                  >
+                                    {review.comment}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Stack>
+                          )}
+                        </AccordionDetails>
+                      </Accordion>
                     </Stack>
                   </Paper>
                 </Grid>
@@ -515,13 +685,15 @@ const ProductDetail = () => {
             </Fade>
           </Grid>
         </Grid>
-        <Footer />
+
         {/* Sticky Action Buttons for Mobile */}
         {isMobile && (
           <Box
             sx={{
-              position: "sticky",
+              position: "fixed",
               bottom: 0,
+              left: 0,
+              right: 0,
               backgroundColor: "#fff",
               p: 2,
               zIndex: 1000,
@@ -600,6 +772,7 @@ const ProductDetail = () => {
           </Box>
         )}
       </Box>
+      <Footer />
     </>
   );
 };

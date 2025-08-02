@@ -12,6 +12,9 @@ import Home from "./Home";
 import ProductDetail from "./components/ProductDetail";
 import CategoryPage from "./components/CategoryPage";
 import AboutPage from "./About";
+import AdminPanel from "./admin/AdminPanel";
+import Signup from "./Signup";
+import Login from "./Login";
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/category/:categoryName" element={<CategoryPage />} />
           <Route path="/about" element={<AboutPage/>} />
+          <Route path="/admin" element={<AdminPanel/>}/>
+          <Route path="/signup" element={<Signup/>} />
+          <Route path="/login" element={<Login/>} />
         </Routes>
       </Router>
     </div>

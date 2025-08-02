@@ -15,7 +15,9 @@
   "sizes": ["XS", "S", "M", "L"],
   "inStock": true,
   "description": "Elegant Anarkali suit with intricate floral embroidery, perfect for festive gatherings and cultural celebrations.",
-  "isNewArrival": true
+  "isNewArrival": true,
+  "reviews": []
+
 },
   {
     "id": "G007",
@@ -28,6 +30,7 @@
     "inStock": true,
     "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
     "isNewArrival": true
+    ,"reviews": []
   },
   {
     "id": "G007",
@@ -40,6 +43,7 @@
     "inStock": true,
     "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
     "isNewArrival": true
+    ,"reviews": []
   },
   {
     "id": "G007",
@@ -52,6 +56,7 @@
     "inStock": true,
     "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
     "isNewArrival": true
+    ,"reviews": []
   },
   {
     "id": "G007",
@@ -64,6 +69,7 @@
     "inStock": true,
     "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
     "isNewArrival": true
+    ,"reviews": []
   },
   {
     "id": "G007",
@@ -76,6 +82,7 @@
     "inStock": true,
     "description": "Chic co-ord kurti set with traditional embroidery, suitable for festive and daily wear.",
     "isNewArrival": true
+    ,"reviews": []
   },
   {
     "id": "G0015",
@@ -88,6 +95,7 @@
     "inStock": false,
     "description": "Stunning floor-length gown with golden zari work, ideal for evening parties and celebrations.",
     "isNewArrival": true
+    ,"reviews": []
   },
   {
     "id": "G010",
@@ -112,6 +120,7 @@
     "inStock": false,
     "description": "Stunning floor-length gown with golden zari work, ideal for evening parties and celebrations.",
     "isNewArrival": true
+    ,"reviews": []
   },
   {
     "id": "G010",
@@ -124,6 +133,7 @@
     "inStock": true,
     "description": "Graceful layered Anarkali with vibrant colors, ideal for festive and cultural occasions.",
     "isNewArrival": false
+    ,"reviews": []
   },
   {
     "id": "G005",
