@@ -7,14 +7,14 @@ const jwt = require("jsonwebtoken");
 // Add nodemailer
 const nodemailer = require("nodemailer");
 
-// Configure nodemailer transporter
+// Configure nodemailer transporter using environment variables
 const transporter = nodemailer.createTransport({
-  host: "smtp.hostinger.com",
-  port: 465,
+  host: process.env.SMTP_HOST || "smtp.hostinger.com",
+  port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 465,
   secure: true,
   auth: {
-    user: "info@sumansi.in",
-    pass: "Sumansi@123",
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 

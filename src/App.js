@@ -36,6 +36,7 @@ function App() {
   }, [user]);
 
   const handleAuth = ({ user, accessToken }) => {
+    // Only use the userId provided by backend or signup, don't generate a new one here
     const userObj = { ...user, accessToken, createdAt: user.createdAt, userId: user.userId };
     setUser(userObj);
     localStorage.setItem("user", JSON.stringify(userObj));
@@ -66,3 +67,4 @@ function App() {
 }
 
 export default App;
+           

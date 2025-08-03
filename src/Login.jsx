@@ -56,8 +56,14 @@ const Login = () => {
       }
       setAccessToken(data.accessToken);
       setSnackbar({ open: true, message: "Login successful!", severity: "success" });
-      handleAuth({ user: data.user, accessToken: data.accessToken });
-      localStorage.setItem("user", JSON.stringify({ ...data.user, accessToken: data.accessToken }));
+      // Use only the userId provided by backend or login
+      const userWithId = {
+        ...data.user,
+        userId: data.user.userId || data.user._id,
+        accessToken: data.accessToken,
+      };
+      handleAuth({ user: userWithId, accessToken: data.accessToken });
+      localStorage.setItem("user", JSON.stringify(userWithId));
       setTimeout(() => {
         navigate("/");
       }, 1200);

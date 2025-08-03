@@ -618,11 +618,13 @@ function Header() {
                       {user.phone}
                     </Typography>
                   </Box>
+                  {/* Show User ID */}
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 2 }}>
                     <PermIdentityIcon sx={{ color: colors.primary, fontSize: 18 }} />
                     <Typography variant="body2" sx={{ color: colors.icon }}>
                       {user.userId}
                     </Typography>
+                    {console.log(user)}
                   </Box>
                 </>
               ) : (
