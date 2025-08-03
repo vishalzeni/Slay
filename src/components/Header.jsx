@@ -603,28 +603,44 @@ function Header() {
               </Box>
               {!editMode ? (
                 <>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: colors.primary }}>
-                    {user.name}
-                  </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 1 }}>
-                    <EmailIcon sx={{ color: colors.primary, fontSize: 18 }} />
-                    <Typography variant="body2" sx={{ color: colors.icon }}>
-                      {user.email}
+                  <Box sx={{ textAlign: "left", mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: colors.primary, mb: 1 }}>
+                      {user.name}
                     </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 1 }}>
-                    <PhoneIcon sx={{ color: colors.primary, fontSize: 18 }} />
-                    <Typography variant="body2" sx={{ color: colors.icon }}>
-                      {user.phone}
-                    </Typography>
-                  </Box>
-                  {/* Show User ID */}
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 2 }}>
-                    <PermIdentityIcon sx={{ color: colors.primary, fontSize: 18 }} />
-                    <Typography variant="body2" sx={{ color: colors.icon }}>
-                      {user.userId}
-                    </Typography>
-                    {console.log(user)}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                      <EmailIcon sx={{ color: colors.primary, fontSize: 18 }} />
+                      <Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 500, color: colors.icon, lineHeight: 1 }}>
+                          Email
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: colors.icon }}>
+                          {user.email}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                      <PhoneIcon sx={{ color: colors.primary, fontSize: 18 }} />
+                      <Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 500, color: colors.icon, lineHeight: 1 }}>
+                          Phone
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: colors.icon }}>
+                          {user.phone}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                      <PermIdentityIcon sx={{ color: colors.primary, fontSize: 18 }} />
+                      <Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 500, color: colors.icon, lineHeight: 1 }}>
+                          User ID
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: colors.icon }}>
+                          {user.userId}
+                        </Typography>
+                      </Box>
+                      {/* {console.log(user)} */}
+                    </Box>
                   </Box>
                 </>
               ) : (
@@ -780,5 +796,6 @@ function Header() {
     </>
   );
 }
+
 
 export default Header;

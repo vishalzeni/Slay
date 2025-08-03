@@ -19,6 +19,7 @@ import logo from "./assets/SUMAN.png"; // Add logo like in signup
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { UserContext } from "./App";
+import { LoadingButton } from "@mui/lab";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -26,6 +27,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [accessToken, setAccessToken] = useState(""); // JWT in state
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { handleAuth } = useContext(UserContext);
 
@@ -41,6 +43,7 @@ const Login = () => {
       setSnackbar({ open: true, message: "Email and password are required.", severity: "error" });
       return;
     }
+    setLoading(true);
     try {
       const res = await fetch("http://localhost:5000/api/login", {
         method: "POST",
@@ -52,6 +55,7 @@ const Login = () => {
       if (!res.ok) {
         setError(data.error || "Login failed");
         setSnackbar({ open: true, message: data.error || "Login failed", severity: "error" });
+        setLoading(false);
         return;
       }
       setAccessToken(data.accessToken);
@@ -59,35 +63,19 @@ const Login = () => {
       // Use only the userId provided by backend or login
       const userWithId = {
         ...data.user,
-        userId: data.user.userId || data.user._id,
+        userId: data.user.userId,
         accessToken: data.accessToken,
       };
       handleAuth({ user: userWithId, accessToken: data.accessToken });
       localStorage.setItem("user", JSON.stringify(userWithId));
       setTimeout(() => {
+        setLoading(false);
         navigate("/");
       }, 1200);
     } catch (err) {
       setError("Network error");
       setSnackbar({ open: true, message: "Network error", severity: "error" });
-    }
-  };
-
-  // Refresh token handler
-  const handleRefresh = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/refresh", {
-        method: "POST",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Refresh failed");
-        return;
-      }
-      setAccessToken(data.accessToken);
-    } catch (err) {
-      setError("Network error");
+      setLoading(false);
     }
   };
 
@@ -174,9 +162,10 @@ const Login = () => {
                 </Typography>
               )}
 
-              <Button
+              <LoadingButton
                 type="submit"
                 variant="contained"
+                loading={loading}
                 sx={{
                   background: `${colors.primary}`,
                   color: colors.badgeText,
@@ -192,15 +181,8 @@ const Login = () => {
                 fullWidth
               >
                 Login
-              </Button>
-              <Button
-                variant="outlined"
-                sx={{ mt: 1 }}
-                onClick={handleRefresh}
-                fullWidth
-              >
-                Refresh Session
-              </Button>
+              </LoadingButton>
+              
 
               <Divider sx={{ my: 1.5, borderColor: colors.border, borderBottomWidth: 2 }} />
 
@@ -227,6 +209,15 @@ const Login = () => {
         <Alert
           onClose={handleSnackbarClose}
           severity={snackbar.severity}
+          iconMapping={{
+            success: (
+              <span style={{ color: "#fff" }}>
+                <svg width="24" height="24" fill="currentColor" style={{ verticalAlign: "middle" }}>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z"/>
+                </svg>
+              </span>
+            ),
+          }}
           sx={{
             background: colors.primary,
             color: colors.badgeText,

@@ -1,16 +1,18 @@
+contact us page.
+add error page.
 Admin panel
+solve image storage issue.
 add announcements in admin.
-login signUp.
+add banner access from admin.
+add forgot password.
 add to cart.
 wishlist.
-contact us page.
-add banner access from admin.
-add error page.
-add loading and snackbar at every point.
 
 wishlist and add to cart is related to user.
 filter out extra things from footer.
-add social links.
+add socials links in footer.
 show all users in admin.
 show all subscribed emails.
-sort out the categories matter.
+sort out the categories input matter / how we can add category.
+
+add loading and snackbar at every point.
