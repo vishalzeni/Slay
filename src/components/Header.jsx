@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { UserContext } from "../App";
 import colors from "../colors";
 import {
   AppBar,
@@ -18,6 +19,12 @@ import {
   Divider,
   Link,
   Tooltip,
+  Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
 } from "@mui/material";
 import {
   FavoriteBorder as FavoriteBorderIcon,
@@ -26,6 +33,10 @@ import {
   Menu as MenuIcon,
   Close as CloseIcon,
   ChevronRightOutlined,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  PermIdentity as PermIdentityIcon,
+  Edit as EditIcon,
 } from "@mui/icons-material";
 import logo from "../assets/SUMAN.png";
 
@@ -93,11 +104,23 @@ const IconWrapper = styled(IconButton)(({ theme }) => ({
   },
 }));
 
+function getInitials(name) {
+  if (!name) return "";
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 function Header() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", phone: "", avatar: "" });
+  const navigate = useNavigate();
+  const { user, handleLogout } = useContext(UserContext);
 
   const toggleDrawer = (open: boolean) => () => setDrawerOpen(open);
 
@@ -111,6 +134,73 @@ function Header() {
       }
     }
     // Otherwise, let the normal navigation happen (to /#new-arrivals)
+  };
+
+  const handleAvatarClick = () => setDialogOpen(true);
+  const handleDialogClose = () => setDialogOpen(false);
+
+  const handleLogoutClick = () => {
+    setDialogOpen(false);
+    handleLogout();
+  };
+
+  const handleSignup = () => {
+    setDialogOpen(false);
+    navigate("/signup");
+  };
+
+  const handleLogin = () => {
+    setDialogOpen(false);
+    navigate("/login");
+  };
+
+  // For mobile drawer: handle avatar click
+  const handleDrawerAvatarClick = () => {
+    setDialogOpen(true);
+    setDrawerOpen(false);
+  };
+
+  // For dialog edit
+  const startEdit = () => {
+    setEditForm({ name: user.name, phone: user.phone, avatar: user.avatar || "" });
+    setEditMode(true);
+  };
+  const cancelEdit = () => setEditMode(false);
+
+  // Handle profile pic upload (convert to base64)
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setEditForm((f) => ({ ...f, avatar: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const saveEdit = () => {
+    // Save to context and localStorage
+    const updated = { ...user, name: editForm.name, phone: editForm.phone, avatar: editForm.avatar };
+    if (typeof window !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(updated));
+    }
+    if (typeof handleLogout === "function") {
+      // Use setUser if available in context, else fallback
+      if (typeof window !== "undefined" && window.dispatchEvent) {
+        // Notify other tabs
+        window.dispatchEvent(new Event("storage"));
+      }
+    }
+    if (typeof window !== "undefined" && window.location) {
+      // Update context
+      if (typeof window.__setUser === "function") window.__setUser(updated);
+    }
+    if (typeof window !== "undefined" && window.location) {
+      // Fallback: reload to update context
+      window.location.reload();
+    }
+    setEditMode(false);
+    setDialogOpen(false);
   };
 
   // Define all nav items with route paths
@@ -154,13 +244,13 @@ function Header() {
             ) : (
               <Box sx={{ display: "flex", gap: { xs: 0.5, md: 1 } }}>
                 {navItems.slice(0, 4).map(({ label, path, onClick }) => (
-                    <NavButton
-                      component={RouterLink}
-                      to={path}
-                      onClick={onClick}
-                    >
-                      {label}
-                    </NavButton>
+                  <NavButton
+                    component={RouterLink}
+                    to={path}
+                    onClick={onClick}
+                  >
+                    {label}
+                  </NavButton>
                 ))}
               </Box>
             )}
@@ -212,16 +302,38 @@ function Header() {
           >
             {!isMobile &&
               navItems.slice(4).map(({ label, path }) => (
-                  <NavButton component={RouterLink} to={path}>
-                    {label}
-                  </NavButton>
+                <NavButton component={RouterLink} to={path} key={label}>
+                  {label}
+                </NavButton>
               ))}
             {!isMobile && (
-              <Tooltip title="Account" arrow>
-                <IconWrapper aria-label="account" component={RouterLink} to="/signup">
-                  <AccountCircleIcon />
-                </IconWrapper>
-              </Tooltip>
+              user ? (
+                <Tooltip title={user.name} arrow>
+                  <Avatar
+                    src={user.avatar}
+                    sx={{
+                      bgcolor: colors.primary,
+                      color: colors.badgeText,
+                      fontWeight: 700,
+                      width: 36,
+                      height: 36,
+                      fontSize: "1.1rem",
+                      cursor: "pointer",
+                      border: `2px solid ${colors.primary}`,
+                      boxShadow: `0 2px 8px ${colors.primary}22`,
+                    }}
+                    onClick={handleAvatarClick}
+                  >
+                    {!user.avatar && getInitials(user.name)}
+                  </Avatar>
+                </Tooltip>
+              ) : (
+                <Tooltip title="Account" arrow>
+                  <IconWrapper aria-label="account" onClick={handleAvatarClick}>
+                    <AccountCircleIcon />
+                  </IconWrapper>
+                </Tooltip>
+              )
             )}
             <Tooltip title="Wishlist" arrow>
               <IconWrapper aria-label="wishlist">
@@ -352,22 +464,317 @@ function Header() {
           {/* Bottom Account Shortcut */}
           <Box sx={{ borderTop: `1px solid ${colors.border}` }}>
             <List disablePadding>
-              <ListItem button component={RouterLink} to="/signup" onClick={toggleDrawer(false)}>
-                <Tooltip title="Go to Account" arrow>
-                  <AccountCircleIcon sx={{ color: colors.primary, mr: 1 }} />
-                </Tooltip>
-                <ListItemText
-                  primary="My Account"
-                  primaryTypographyProps={{
-                    fontWeight: 500,
-                    color: colors.primary,
+              {user ? (
+                <ListItem
+                  button
+                  onClick={handleDrawerAvatarClick}
+                  sx={{
+                    py: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
                   }}
-                />
-              </ListItem>
+                >
+                  <Avatar
+                    src={user.avatar}
+                    sx={{
+                      bgcolor: colors.primary,
+                      color: colors.badgeText,
+                      fontWeight: 700,
+                      width: 36,
+                      height: 36,
+                      fontSize: "1.1rem",
+                      border: `2px solid ${colors.primary}`,
+                      boxShadow: `0 2px 8px ${colors.primary}22`,
+                    }}
+                  >
+                    {!user.avatar && getInitials(user.name)}
+                  </Avatar>
+                  <ListItemText
+                    primary={user.name}
+                    primaryTypographyProps={{
+                      fontWeight: 600,
+                      color: colors.primary,
+                    }}
+                  />
+                </ListItem>
+              ) : (
+                <ListItem button component={RouterLink} to="/signup" onClick={toggleDrawer(false)}>
+                  <Tooltip title="Go to Account" arrow>
+                    <AccountCircleIcon sx={{ color: colors.primary, mr: 1 }} />
+                  </Tooltip>
+                  <ListItemText
+                    primary="My Account"
+                    primaryTypographyProps={{
+                      fontWeight: 500,
+                      color: colors.primary,
+                    }}
+                  />
+                </ListItem>
+              )}
             </List>
           </Box>
         </Box>
       </SwipeableDrawer>
+
+      {/* Account Dialog */}
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            bgcolor: colors.cardBg,
+            boxShadow: `0 8px 32px ${colors.primary}33`,
+            p: 2,
+            position: "relative",
+          },
+        }}
+      >
+        {/* Close Icon */}
+        <IconButton
+          aria-label="close"
+          onClick={handleDialogClose}
+          sx={{
+            position: "absolute",
+            right: 12,
+            top: 12,
+            color: colors.primary,
+            zIndex: 10,
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogTitle sx={{ textAlign: "center", color: colors.primary, fontWeight: 700 }}>
+          {user ? "Account Info" : "Welcome"}
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: "center" }}>
+          {user ? (
+            <>
+              <Box sx={{ position: "relative", mb: 2 }}>
+                <Avatar
+                  src={editMode ? editForm.avatar : user.avatar}
+                  sx={{
+                    bgcolor: colors.primary,
+                    color: colors.badgeText,
+                    fontWeight: 700,
+                    width: 56,
+                    height: 56,
+                    fontSize: "1.5rem",
+                    mx: "auto",
+                    border: `2px solid ${colors.primary}`,
+                    boxShadow: `0 2px 8px ${colors.primary}22`,
+                  }}
+                >
+                  {!(editMode ? editForm.avatar : user.avatar) && getInitials(user.name)}
+                </Avatar>
+                {editMode && (
+                  <Box sx={{ mt: 1 }}>
+                    <input
+                      accept="image/*"
+                      type="file"
+                      style={{ display: "none" }}
+                      id="avatar-upload"
+                      onChange={handleAvatarUpload}
+                    />
+                    <label htmlFor="avatar-upload">
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        component="span"
+                        sx={{
+                          mt: 1,
+                          fontSize: "0.85rem",
+                          borderRadius: 2,
+                          px: 2,
+                          py: 0.5,
+                          color: colors.primary,
+                          borderColor: colors.primary,
+                          "&:hover": { background: colors.accent },
+                        }}
+                      >
+                        Upload Photo
+                      </Button>
+                    </label>
+                  </Box>
+                )}
+              </Box>
+              {!editMode ? (
+                <>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: colors.primary }}>
+                    {user.name}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 1 }}>
+                    <EmailIcon sx={{ color: colors.primary, fontSize: 18 }} />
+                    <Typography variant="body2" sx={{ color: colors.icon }}>
+                      {user.email}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 1 }}>
+                    <PhoneIcon sx={{ color: colors.primary, fontSize: 18 }} />
+                    <Typography variant="body2" sx={{ color: colors.icon }}>
+                      {user.phone}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 2 }}>
+                    <PermIdentityIcon sx={{ color: colors.primary, fontSize: 18 }} />
+                    <Typography variant="body2" sx={{ color: colors.icon }}>
+                      {user.userId}
+                    </Typography>
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <Box sx={{ mb: 2 }}>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                      style={{
+                        fontWeight: 600,
+                        fontSize: "1.1rem",
+                        color: colors.primary,
+                        border: "1px solid " + colors.primary,
+                        borderRadius: 4,
+                        padding: "6px 10px",
+                        marginBottom: 8,
+                        width: "80%",
+                        marginTop: 8,
+                      }}
+                      placeholder="Name"
+                    />
+                  </Box>
+                  <Box sx={{ mb: 2 }}>
+                    <input
+                      type="text"
+                      value={editForm.phone}
+                      onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))}
+                      style={{
+                        fontWeight: 500,
+                        fontSize: "1rem",
+                        color: colors.primary,
+                        border: "1px solid " + colors.primary,
+                        borderRadius: 4,
+                        padding: "6px 10px",
+                        width: "80%",
+                      }}
+                      placeholder="Phone"
+                    />
+                  </Box>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Typography sx={{ mb: 2, color: colors.icon }}>
+                Please login or signup to access your account.
+              </Typography>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          {user ? (
+            !editMode ? (
+              <>
+                <Button
+                  variant="outlined"
+                  startIcon={<EditIcon />}
+                  sx={{
+                    color: colors.primary,
+                    borderColor: colors.primary,
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    px: 3,
+                    "&:hover": { background: colors.accent },
+                  }}
+                  onClick={startEdit}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{
+                    background: colors.primary,
+                    color: colors.badgeText,
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    px: 4,
+                    "&:hover": { background: "#a83200" },
+                  }}
+                  onClick={handleLogoutClick}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outlined"
+                  sx={{
+                    color: colors.primary,
+                    borderColor: colors.primary,
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    px: 3,
+                    "&:hover": { background: colors.accent },
+                  }}
+                  onClick={cancelEdit}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{
+                    background: colors.primary,
+                    color: colors.badgeText,
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    px: 4,
+                    "&:hover": { background: "#a83200" },
+                  }}
+                  onClick={saveEdit}
+                >
+                  Save
+                </Button>
+              </>
+            )
+          ) : (
+            <>
+              <Button
+                variant="contained"
+                sx={{
+                  background: colors.primary,
+                  color: colors.badgeText,
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  px: 3,
+                  mr: 1,
+                  "&:hover": { background: "#a83200" },
+                }}
+                onClick={handleSignup}
+              >
+                Signup
+              </Button>
+              <Button
+                variant="outlined"
+                sx={{
+                  color: colors.primary,
+                  borderColor: colors.primary,
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  px: 3,
+                  "&:hover": { background: colors.accent },
+                }}
+                onClick={handleLogin}
+              >
+                Login
+              </Button>
+            </>
+          )}
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

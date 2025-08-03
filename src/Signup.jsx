@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Box,
   Card,
@@ -11,23 +11,30 @@ import {
   Divider,
   IconButton,
   InputAdornment,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import colors from "./colors";
 import { useNavigate } from "react-router-dom";
 import logo from "./assets/SUMAN.png"; // Adjust the path if needed
+import { UserContext } from "./App";
 
 const Signup = () => {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [accessToken, setAccessToken] = useState(""); // JWT in state
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const navigate = useNavigate();
+  const { handleAuth } = useContext(UserContext);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,18 +42,50 @@ const Signup = () => {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+    if (!form.name || !form.email || !form.phone || !form.password || !form.confirmPassword) {
       setError("All fields are required.");
+      setSnackbar({ open: true, message: "All fields are required.", severity: "error" });
       return;
     }
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
+      setSnackbar({ open: true, message: "Passwords do not match.", severity: "error" });
       return;
     }
-    navigate("/login");
+    try {
+      const res = await fetch("http://localhost:5000/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Signup failed");
+        setSnackbar({ open: true, message: data.error || "Signup failed", severity: "error" });
+        return;
+      }
+      setAccessToken(data.accessToken);
+      setSnackbar({ open: true, message: "Signup & Login successful!", severity: "success" });
+      handleAuth({ user: data.user, accessToken: data.accessToken });
+      localStorage.setItem("user", JSON.stringify({ ...data.user, accessToken: data.accessToken }));
+      setTimeout(() => {
+        navigate("/");
+      }, 1200);
+    } catch (err) {
+      setError("Network error");
+      setSnackbar({ open: true, message: "Network error", severity: "error" });
+    }
   };
+
+  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
 
   return (
     <Box
@@ -62,7 +101,7 @@ const Signup = () => {
       <Card
         sx={{
           width: "100%",
-          maxWidth: 560, // Increased width
+          maxWidth: 560,
           borderRadius: 4,
           bgcolor: colors.cardBg,
           boxShadow: `0 8px 32px ${colors.border}44`,
@@ -94,7 +133,7 @@ const Signup = () => {
 
           <Box component="form" onSubmit={handleSubmit}>
             <Stack spacing={2.5}>
-              {/* Full Name and Email */}
+              {/* Full Name, Email, Phone */}
               <Stack direction="row" spacing={2}>
                 <TextField
                   label="Full Name"
@@ -114,6 +153,15 @@ const Signup = () => {
                   required
                 />
               </Stack>
+              <TextField
+                label="Phone Number"
+                name="phone"
+                type="tel"
+                value={form.phone}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
 
               {/* Password and Confirm Password */}
               <Stack direction="row" spacing={2}>
@@ -193,8 +241,31 @@ const Signup = () => {
           </Box>
         </CardContent>
       </Card>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={snackbar.open}
+        autoHideDuration={2000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{
+            background: colors.primary,
+            color: colors.badgeText,
+            fontWeight: 600,
+            fontSize: "1rem",
+            boxShadow: `0 8px 24px ${colors.primary}33`,
+            borderRadius: 2,
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
 
 export default Signup;
+
+// You can use data.user.createdAt if you want to display registration date after signup
