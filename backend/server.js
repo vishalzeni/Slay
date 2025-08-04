@@ -7,7 +7,8 @@ const authRoutes = require("./routes/authRoutes");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const Product = require("./models/Product");
-const jwt = require("jsonwebtoken");
+const announcementRoutes = require("./routes/announcementRoutes");
+
 
 dotenv.config();
 const app = express();
@@ -33,26 +34,15 @@ app.use(
 );
 app.use(cookieParser());
 
-// Authentication middleware
-const authMiddleware = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: "Invalid token" });
-  }
-};
 
 // Connect DB
 connectDB();
 
 // Routes
 app.use("/api/auth", authRoutes);
+
+app.use("/api/announcements", announcementRoutes);
+
 
 // Image upload endpoint (protected)
 app.post("/api/upload", upload.single("image"), async (req, res) => {

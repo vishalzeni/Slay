@@ -1,8 +1,5 @@
 contact us page.
-add error page.
-Admin panel
-solve image storage issue.
-add announcements in admin.
+show all users in dashboard.
 add banner access from admin.
 add forgot password.
 add to cart.
@@ -11,8 +8,6 @@ wishlist.
 wishlist and add to cart is related to user.
 filter out extra things from footer.
 add socials links in footer.
-show all users in admin.
 show all subscribed emails.
-sort out the categories input matter / how we can add category.
 
 add loading and snackbar at every point.

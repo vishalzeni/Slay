@@ -15,21 +15,26 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+
 import {
   AddCircleOutline,
   Dashboard,
-  Inventory as InventoryIcon, // <-- Rename icon import
+  Inventory as InventoryIcon,
   Menu,
   Close,
+  Campaign as CampaignIcon,
 } from "@mui/icons-material";
+
 import colors from "../colors";
 import AddProduct from "./AddProduct";
 import Inventory from "./Inventory";
+import Announcements from "./Announcements";
 
 const sidebarItems = [
   { text: "Add Product", icon: <AddCircleOutline /> },
   { text: "Dashboard", icon: <Dashboard /> },
-  { text: "Inventory", icon: <InventoryIcon /> }, // <-- Use renamed icon
+  { text: "Inventory", icon: <InventoryIcon /> },
+  { text: "Announcements", icon: <CampaignIcon /> },
 ];
 
 const AdminPanel = () => {
@@ -37,15 +42,13 @@ const AdminPanel = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopOpen, setDesktopOpen] = useState(
-    () => {
-      try {
-        return JSON.parse(localStorage.getItem("sidebarOpen")) ?? true;
-      } catch {
-        return true;
-      }
+  const [desktopOpen, setDesktopOpen] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("sidebarOpen")) ?? true;
+    } catch {
+      return true;
     }
-  );
+  });
   const [selected, setSelected] = useState(0);
 
   const handleDrawerToggle = () => {
@@ -122,68 +125,92 @@ const AdminPanel = () => {
           {sidebarItems.map((item, index) => {
             const isSelected = selected === index;
             return (
-              <Tooltip
-                key={item.text}
-                title={!desktopOpen && !isMobile ? item.text : ""}
-                placement="right"
-                arrow
-              >
-                <ListItem
-                  button
-                  selected={isSelected}
-                  onClick={() => {
-                    setSelected(index);
-                    if (isMobile) setMobileOpen(false);
-                  }}
-                  sx={{
-                    borderRadius: 2,
-                    mb: 1,
-                    backgroundColor: isSelected
-                      ? colors.primary
-                      : "transparent",
-                    color: isSelected ? colors.badgeText : colors.icon,
-                    "&.Mui-selected": {
-                      backgroundColor: colors.primary,
-                      "&:hover": { backgroundColor: `${colors.primary}DD` },
-                    },
-                    "&:hover": { backgroundColor: `${colors.accent}40` },
-                    transition: "all 0.3s ease",
-                    justifyContent:
-                      desktopOpen || isMobile ? "flex-start" : "center",
-                    ...(!desktopOpen &&
-                      !isMobile && {
-                        width: 56,
-                        height: 56,
-                        mx: "auto",
-                        mb: 2,
+              <React.Fragment key={item.text}>
+                <Tooltip
+                  title={!desktopOpen && !isMobile ? item.text : ""}
+                  placement="right"
+                  arrow
+                >
+                  <ListItem
+                    button
+                    selected={isSelected}
+                    onClick={() => {
+                      setSelected(index);
+                      if (isMobile) setMobileOpen(false);
+                    }}
+                    sx={{
+                      position: "relative",
+                      borderRadius: 2,
+                      mb: 0.5,
+                      backgroundColor: isSelected ? colors.primary : "#fff",
+                      color: isSelected ? colors.badgeText : colors.icon,
+                      transition: "all 0.25s ease",
+                      "&.Mui-selected": {
+                        backgroundColor: colors.primary,
+                        color: colors.badgeText,
+                      },
+                      "&.Mui-selected:hover": {
+                        backgroundColor: colors.primary, // keeps it consistent
+                        color: colors.badgeText,
+                        transform: "scale(1.02)",
+                      },
+                      "&:hover": {
+                        backgroundColor: !isSelected
+                          ? `${colors.primary}30`
+                          : colors.primary,
+                        transform: "scale(1.02)",
+                      },
+                      justifyContent:
+                        desktopOpen || isMobile ? "flex-start" : "center",
+                      ...(!desktopOpen &&
+                        !isMobile && {
+                          width: 56,
+                          height: 56,
+                          mx: "auto",
+                          mb: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          p: 0,
+                        }),
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: isSelected ? colors.badgeText : colors.icon,
+                        minWidth: desktopOpen || isMobile ? 40 : "auto",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        p: 0,
-                      }),
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      color: isSelected ? colors.badgeText : colors.icon,
-                      minWidth: desktopOpen || isMobile ? 40 : "auto",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  {(desktopOpen || isMobile) && (
-                    <ListItemText
-                      primary={item.text}
-                      primaryTypographyProps={{
-                        fontWeight: isSelected ? 600 : 400,
                       }}
-                    />
-                  )}
-                </ListItem>
-              </Tooltip>
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    {(desktopOpen || isMobile) && (
+                      <ListItemText
+                        primary={item.text}
+                        primaryTypographyProps={{
+                          fontWeight: isSelected ? 600 : 400,
+                        }}
+                      />
+                    )}
+                  </ListItem>
+                </Tooltip>
+
+                {/* Divider between items */}
+                {index < sidebarItems.length - 1 && (
+                  <Divider
+                    sx={{
+                      my: 0.5,
+                      borderColor: colors.border,
+                      opacity: 0.4,
+                      width: desktopOpen || isMobile ? "90%" : "40%",
+                      mx: "auto",
+                      transition: "width 0.3s ease",
+                    }}
+                  />
+                )}
+              </React.Fragment>
             );
           })}
         </List>
@@ -278,6 +305,8 @@ const AdminPanel = () => {
             <AddProduct />
           ) : selected === 2 ? (
             <Inventory />
+          ) : selected === 3 ? (
+            <Announcements />
           ) : (
             <Box
               sx={{

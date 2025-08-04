@@ -1,8 +1,7 @@
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"; // ⬅ Added Navigate
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
 import "@fontsource/poppins/300.css";
 import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/500.css";
@@ -21,13 +20,11 @@ export const UserContext = React.createContext();
 
 function App() {
   const [user, setUser] = useState(() => {
-    // Load user from localStorage on first render
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
 
   useEffect(() => {
-    // Keep localStorage in sync with user state
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
     } else {
@@ -36,7 +33,6 @@ function App() {
   }, [user]);
 
   const handleAuth = ({ user, accessToken }) => {
-    // Only use the userId provided by backend or signup, don't generate a new one here
     const userObj = { ...user, accessToken, createdAt: user.createdAt, userId: user.userId };
     setUser(userObj);
     localStorage.setItem("user", JSON.stringify(userObj));
@@ -59,6 +55,9 @@ function App() {
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
+            
+            {/* Fallback Route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
       </div>
@@ -67,4 +66,3 @@ function App() {
 }
 
 export default App;
-           
