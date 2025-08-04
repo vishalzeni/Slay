@@ -14,12 +14,20 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import clothesData from "../data/clothes.json";
 import colors from "../colors";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
 const NewArrivalsCarousel = ({ id }) => {
-  const newArrivals = clothesData.filter((item) => item.isNewArrival);
+  const [newArrivals, setNewArrivals] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch("http://localhost:5000/api/products?limit=1000")
+      .then((res) => res.json())
+      .then((res) => {
+        setNewArrivals((res.products || []).filter((item) => item.isNewArrival));
+      })
+      .catch(() => setNewArrivals([]));
+  }, []);
 
   return (
     <Box

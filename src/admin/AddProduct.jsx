@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -14,7 +14,10 @@ import {
   Alert,
   Fade,
   Tooltip,
+  CircularProgress,
+  Snackbar,
 } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import {
   AddCircleOutline,
   PhotoCamera,
@@ -25,6 +28,7 @@ import {
   NewReleases,
   CheckCircle,
   Delete,
+  CloudUpload,
 } from "@mui/icons-material";
 import colors from "../colors";
 
@@ -50,16 +54,49 @@ const AddProduct = () => {
     reviews: [],
   });
 
-  // State for temporary image and size input
-  const [tempImage, setTempImage] = useState("");
+  // State for temporary size input
   const [tempSize, setTempSize] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState({});
+  const [mainImageUploading, setMainImageUploading] = useState(false);
+  const [additionalImageUploading, setAdditionalImageUploading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [categories, setCategories] = useState([]);
+  const [categoryMode, setCategoryMode] = useState("select");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [newCategory, setNewCategory] = useState("");
 
   // Generate new ID on component mount and after submission
   useEffect(() => {
     setFormData((prev) => ({ ...prev, id: generateProductId() }));
   }, []);
+
+  // Fetch categories from backend (or fallback to static)
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.products)) {
+          const cats = [
+            ...new Set(
+              data.products
+                .map((p) => p.category)
+                .filter((c) => !!c && c.trim() !== "")
+            ),
+          ];
+          setCategories(cats);
+        }
+      })
+      .catch(() => setCategories([]));
+  }, []);
+
+  useEffect(() => {
+    if (categoryMode === "select") {
+      setFormData((prev) => ({ ...prev, category: selectedCategory }));
+    } else if (categoryMode === "input") {
+      setFormData((prev) => ({ ...prev, category: newCategory }));
+    }
+  }, [categoryMode, selectedCategory, newCategory]);
 
   // Validation function
   const validateForm = () => {
@@ -89,15 +126,48 @@ const AddProduct = () => {
     }
   };
 
-  // Handle adding image to images array
-  const handleAddImage = () => {
-    if (tempImage.trim()) {
+  // Upload image to backend (which uploads to Cloudinary)
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const res = await fetch("http://localhost:5000/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) throw new Error("Image upload failed");
+    const data = await res.json();
+    return data.url;
+  };
+
+  // Handle main image file upload
+  const handleMainImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setMainImageUploading(true);
+    try {
+      const url = await uploadImage(file);
+      setFormData((prev) => ({ ...prev, image: url }));
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, image: "Image upload failed" }));
+    }
+    setMainImageUploading(false);
+  };
+
+  // Handle additional image file upload
+  const handleAdditionalImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAdditionalImageUploading(true);
+    try {
+      const url = await uploadImage(file);
       setFormData((prev) => ({
         ...prev,
-        images: [...prev.images, tempImage.trim()],
+        images: [...prev.images, url],
       }));
-      setTempImage("");
+    } catch (err) {
+      // Optionally show error
     }
+    setAdditionalImageUploading(false);
   };
 
   // Handle removing image from images array
@@ -130,63 +200,120 @@ const AddProduct = () => {
     }));
   };
 
+  // Helper to check if product ID exists
+  const checkProductIdExists = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/products?id=${id}`);
+      const data = await res.json();
+      if (Array.isArray(data.products)) {
+        return data.products.some((p) => p.id === id);
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
+      setSnackbar({ open: true, message: "Please fill all required fields.", severity: "error" });
       return;
     }
+
+    let productId = formData.id;
+    let exists = await checkProductIdExists(productId);
+    let attempts = 0;
+    // Try up to 5 times to get a unique ID
+    while (exists && attempts < 5) {
+      productId = generateProductId();
+      exists = await checkProductIdExists(productId);
+      attempts++;
+    }
+    if (exists) {
+      setSnackbar({ open: true, message: "Could not generate unique Product ID. Try again.", severity: "error" });
+      return;
+    }
+
     const productData = {
       ...formData,
+      id: productId,
       price: parseFloat(formData.price),
       marketPrice: parseFloat(formData.marketPrice),
       reviews: [],
     };
-    console.log("Product Data:", productData);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
-    setFormData({
-      id: generateProductId(),
-      name: "",
-      price: "",
-      marketPrice: "",
-      category: "",
-      image: "",
-      images: [],
-      sizes: [],
-      inStock: true,
-      description: "",
-      isNewArrival: false,
-      reviews: [],
-    });
-    setErrors({});
+    console.log("[AddProduct] Product Data to send:", productData);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSnackbar({ open: true, message: data.error || "Failed to add product", severity: "error" });
+        setErrors((prev) => ({
+          ...prev,
+          submit: data.error || "Failed to add product",
+        }));
+        return;
+      }
+      setShowSuccess(true);
+      setSnackbar({ open: true, message: "Product added successfully!", severity: "success" });
+      setTimeout(() => setShowSuccess(false), 3000);
+      setFormData({
+        id: generateProductId(),
+        name: "",
+        price: "",
+        marketPrice: "",
+        category: "",
+        image: "",
+        images: [],
+        sizes: [],
+        inStock: true,
+        description: "",
+        isNewArrival: false,
+        reviews: [],
+      });
+      setErrors({});
+    } catch (err) {
+      setSnackbar({ open: true, message: "Network or server error", severity: "error" });
+      setErrors((prev) => ({
+        ...prev,
+        submit: "Network or server error",
+      }));
+    }
   };
 
   return (
     <>
-      {/* Success Alert */}
-      <Fade in={showSuccess}>
-        <Alert
-          severity="success"
-          icon={<CheckCircle />}
+      {/* Snackbar for feedback */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={2500}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
           sx={{
-            position: "fixed",
-            top: 80,
-            right: { xs: 10, md: 20 },
-            zIndex: 9999,
-            minWidth: { xs: 200, md: 300 },
-            bgcolor: colors.accent,
+            background: snackbar.severity === "success" ? colors.primary : "#d32f2f",
             color: colors.badgeText,
-            boxShadow: `0 8px 24px ${colors.primary}33`,
-            "& .MuiAlert-icon": { color: colors.badgeText },
+            fontWeight: 600,
+            fontSize: "1rem",
             borderRadius: 2,
-            fontWeight: 500,
-            p: 1,
           }}
         >
-          Product added successfully!
-        </Alert>
-      </Fade>
+          {snackbar.message}
+        </MuiAlert>
+      </Snackbar>
 
       <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: colors.background }}>
         {/* Main Content */}
@@ -198,7 +325,6 @@ const AddProduct = () => {
             bgcolor: colors.background,
           }}
         >
-
           <Fade in timeout={800}>
             <Card
               elevation={0}
@@ -331,67 +457,142 @@ const AddProduct = () => {
                       />
                     </Stack>
 
-                    {/* Category */}
-                    <TextField
-                      label="Category"
-                      name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
-                      fullWidth
-                      required
-                      error={!!errors.category}
-                      helperText={errors.category}
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Category sx={{ color: colors.primary }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 2,
-                          "&:hover fieldset": { borderColor: colors.primary },
-                          "&.Mui-focused fieldset": { borderColor: colors.primary },
-                        },
-                        "& .MuiInputLabel-root": { color: colors.icon },
-                        "& .MuiInputLabel-root.Mui-focused": { color: colors.primary },
-                      }}
-                      aria-required="true"
-                    />
+                    {/* Category (Select + Input, aligned with UI) */}
+                    <Box>
+                      <Typography
+                        variant="subtitle2"
+                        fontWeight={600}
+                        mb={1}
+                        sx={{ color: colors.icon, display: "flex", alignItems: "center" }}
+                      >
+                        <Category sx={{ mr: 1, fontSize: 18, color: colors.primary }} />
+                        Category
+                      </Typography>
+                      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
+                        <Box sx={{ minWidth: 220 }}>
+                          <TextField
+                            select
+                            label="Select Category"
+                            value={categoryMode === "select" ? selectedCategory : "other"}
+                            onChange={(e) => {
+                              if (e.target.value === "other") {
+                                setCategoryMode("input");
+                                setSelectedCategory("");
+                              } else {
+                                setCategoryMode("select");
+                                setSelectedCategory(e.target.value);
+                                setNewCategory("");
+                              }
+                            }}
+                            fullWidth
+                            size="small"
+                            SelectProps={{
+                              native: true,
+                            }}
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                                bgcolor: "#fff",
+                                "& fieldset": { borderColor: colors.border },
+                                "&:hover fieldset": { borderColor: colors.primary },
+                                "&.Mui-focused fieldset": { borderColor: colors.primary },
+                              },
+                              "& .MuiInputLabel-root": { color: colors.icon },
+                              "& .MuiInputLabel-root.Mui-focused": { color: colors.primary },
+                            }}
+                          >
+                            <option value="">Select Category</option>
+                            {categories.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                            <option value="other">Add new...</option>
+                          </TextField>
+                        </Box>
+                        {categoryMode === "input" && (
+                          <TextField
+                            label="New Category"
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            fullWidth
+                            required
+                            error={!!errors.category}
+                            helperText={errors.category}
+                            size="small"
+                            sx={{
+                              maxWidth: 220,
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                                "&:hover fieldset": { borderColor: colors.primary },
+                                "&.Mui-focused fieldset": { borderColor: colors.primary },
+                              },
+                              "& .MuiInputLabel-root": { color: colors.icon },
+                              "& .MuiInputLabel-root.Mui-focused": { color: colors.primary },
+                            }}
+                            aria-required="true"
+                          />
+                        )}
+                      </Stack>
+                      {categoryMode === "select" && errors.category && (
+                        <Typography color="error" fontSize="0.95rem">
+                          {errors.category}
+                        </Typography>
+                      )}
+                    </Box>
 
-                    {/* Main Image */}
-                    <TextField
-                      label="Main Image URL"
-                      name="image"
-                      value={formData.image}
-                      onChange={handleInputChange}
-                      fullWidth
-                      required
-                      error={!!errors.image}
-                      helperText={errors.image}
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <PhotoCamera sx={{ color: colors.primary }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 2,
-                          "&:hover fieldset": { borderColor: colors.primary },
-                          "&.Mui-focused fieldset": { borderColor: colors.primary },
-                        },
-                        "& .MuiInputLabel-root": { color: colors.icon },
-                        "& .MuiInputLabel-root.Mui-focused": { color: colors.primary },
-                      }}
-                      aria-required="true"
-                    />
+                    {/* Main Image Upload */}
+                    <Box>
+                      <Typography
+                        variant="subtitle2"
+                        fontWeight={600}
+                        mb={1}
+                        sx={{ color: colors.icon, display: "flex", alignItems: "center" }}
+                      >
+                        <PhotoCamera sx={{ mr: 1, fontSize: 18, color: colors.primary }} />
+                        Main Image
+                      </Typography>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Button
+                          variant="contained"
+                          component="label"
+                          startIcon={<CloudUpload />}
+                          sx={{
+                            background: colors.primary,
+                            color: colors.badgeText,
+                            borderRadius: 2,
+                            fontWeight: 600,
+                            px: 3,
+                            py: 1,
+                            "&:hover": { background: "#a83200" },
+                          }}
+                          disabled={mainImageUploading}
+                        >
+                          {mainImageUploading ? "Uploading..." : "Upload Main Image"}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            onChange={handleMainImageChange}
+                          />
+                        </Button>
+                        {mainImageUploading && <CircularProgress size={24} />}
+                        {formData.image && (
+                          <img
+                            src={formData.image}
+                            alt="Main"
+                            style={{ width: 60, height: 60, borderRadius: 8, objectFit: "cover", marginLeft: 12 }}
+                          />
+                        )}
+                      </Stack>
+                      {errors.image && (
+                        <Typography color="error" fontSize="0.95rem">
+                          {errors.image}
+                        </Typography>
+                      )}
+                    </Box>
 
-                    {/* Additional Images */}
+                    {/* Additional Images Upload */}
                     <Box>
                       <Typography
                         variant="subtitle2"
@@ -403,68 +604,34 @@ const AddProduct = () => {
                           alignItems: "center",
                         }}
                       >
-                        <PhotoCamera
-                          sx={{ mr: 1, fontSize: 18, color: colors.primary }}
-                        />
+                        <PhotoCamera sx={{ mr: 1, fontSize: 18, color: colors.primary }} />
                         Additional Images
                       </Typography>
-                      <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-                        <TextField
-                          label="Image URL"
-                          value={tempImage}
-                          onChange={(e) => setTempImage(e.target.value)}
-                          fullWidth
+                      <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                        <Button
                           variant="outlined"
-                          size="small"
+                          component="label"
+                          startIcon={<CloudUpload />}
                           sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: 2,
-                              "&:hover fieldset": { borderColor: colors.primary },
-                              "&.Mui-focused fieldset": { borderColor: colors.primary },
-                            },
-                            "& .MuiInputLabel-root": { color: colors.icon },
-                            "& .MuiInputLabel-root.Mui-focused": { color: colors.primary },
+                            borderColor: colors.primary,
+                            color: colors.primary,
+                            borderRadius: 2,
+                            fontWeight: 600,
+                            px: 3,
+                            py: 1,
+                            "&:hover": { background: colors.accent },
                           }}
-                          onKeyPress={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              handleAddImage();
-                            }
-                          }}
-                          aria-label="Add additional image URL"
-                        />
-                        <Tooltip title="Add Image" arrow>
-                          <span>
-                            <Button
-                              variant="contained"
-                              onClick={handleAddImage}
-                              disabled={!tempImage.trim()}
-                              sx={{
-                                background: colors.primary,
-                                borderRadius: 2,
-                                textTransform: "none",
-                                color: colors.badgeText,
-                                px: 3,
-                                py: 1,
-                                fontWeight: 600,
-                                boxShadow: `0 4px 12px ${colors.primary}33`,
-                                "&:hover": {
-                                  background: colors.primary,
-                                  transform: "scale(1.05)",
-                                },
-                                "&:disabled": {
-                                  background: colors.border,
-                                  color: colors.icon,
-                                  opacity: 0.6,
-                                },
-                                transition: "all 0.3s ease",
-                              }}
-                              aria-label="Add image to list"
-                            >
-                              Add
-                            </Button>
-                          </span>
-                        </Tooltip>
+                          disabled={additionalImageUploading}
+                        >
+                          {additionalImageUploading ? "Uploading..." : "Upload Image"}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            onChange={handleAdditionalImageChange}
+                          />
+                        </Button>
+                        {additionalImageUploading && <CircularProgress size={24} />}
                       </Stack>
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                         {formData.images.length === 0 && (
@@ -478,7 +645,13 @@ const AddProduct = () => {
                         {formData.images.map((img, index) => (
                           <Chip
                             key={index}
-                            label={img.length > 30 ? img.substring(0, 30) + "..." : img}
+                            label={
+                              <img
+                                src={img}
+                                alt={`img${index + 1}`}
+                                style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 4, marginRight: 8 }}
+                              />
+                            }
                             onDelete={() => handleRemoveImage(index)}
                             deleteIcon={
                               <Tooltip title="Remove Image" arrow>
@@ -492,8 +665,10 @@ const AddProduct = () => {
                               borderRadius: 2,
                               "&:hover": { backgroundColor: `${colors.accent}A0` },
                               transition: "all 0.3s ease",
+                              minWidth: 60,
+                              minHeight: 40,
                             }}
-                            aria-label={`Image ${index + 1}: ${img}`}
+                            aria-label={`Image ${index + 1}`}
                           />
                         ))}
                       </Box>
@@ -725,6 +900,11 @@ const AddProduct = () => {
                         Add Product
                       </Button>
                     </Tooltip>
+                    {errors.submit && (
+                      <Typography color="error" fontSize="0.95rem" sx={{ mt: 1 }}>
+                        {errors.submit}
+                      </Typography>
+                    )}
                   </Stack>
                 </Box>
               </CardContent>

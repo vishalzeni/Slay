@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import data from "../data/clothes.json";
 import colors from "../colors";
 
 const groupByCategory = (items) => {
@@ -43,9 +42,20 @@ const PremiumCard = styled(Card)(({ theme }) => ({
 }));
 
 const ClothingGallery = () => {
+  const [data, setData] = useState([]);
   const groupedItems = groupByCategory(data);
   const scrollRefs = useRef({});
   const [showNav, setShowNav] = useState({});
+
+  useEffect(() => {
+    // Fetch products from backend
+    fetch("http://localhost:5000/api/products?limit=1000")
+      .then((res) => res.json())
+      .then((res) => {
+        setData(res.products || []);
+      })
+      .catch(() => setData([]));
+  }, []);
 
   useEffect(() => {
     const checkOverflow = () => {

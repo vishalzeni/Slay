@@ -18,17 +18,18 @@ import {
 import {
   AddCircleOutline,
   Dashboard,
-  Inventory,
+  Inventory as InventoryIcon, // <-- Rename icon import
   Menu,
   Close,
 } from "@mui/icons-material";
 import colors from "../colors";
 import AddProduct from "./AddProduct";
+import Inventory from "./Inventory";
 
 const sidebarItems = [
   { text: "Add Product", icon: <AddCircleOutline /> },
   { text: "Dashboard", icon: <Dashboard /> },
-  { text: "Inventory", icon: <Inventory /> },
+  { text: "Inventory", icon: <InventoryIcon /> }, // <-- Use renamed icon
 ];
 
 const AdminPanel = () => {
@@ -37,7 +38,13 @@ const AdminPanel = () => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [desktopOpen, setDesktopOpen] = useState(
-    () => JSON.parse(localStorage.getItem("sidebarOpen")) ?? true
+    () => {
+      try {
+        return JSON.parse(localStorage.getItem("sidebarOpen")) ?? true;
+      } catch {
+        return true;
+      }
+    }
   );
   const [selected, setSelected] = useState(0);
 
@@ -264,10 +271,13 @@ const AdminPanel = () => {
             maxWidth: !desktopOpen && !isMobile ? "900px" : "100%",
             mx: !desktopOpen && !isMobile ? "auto" : "inherit",
             textAlign: !desktopOpen && !isMobile ? "center" : "left",
+            minHeight: "80vh",
           }}
         >
           {selected === 0 ? (
             <AddProduct />
+          ) : selected === 2 ? (
+            <Inventory />
           ) : (
             <Box
               sx={{

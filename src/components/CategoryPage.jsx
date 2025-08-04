@@ -23,7 +23,6 @@ import { styled } from "@mui/system";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import CloseIcon from "@mui/icons-material/Close";
 import colors from "../colors";
-import data from "../data/clothes.json";
 import Header from "./Header";
 import Footer from "./Footer";
 
@@ -47,11 +46,7 @@ const CategoryPage = () => {
   const decodedCategory = decodeURIComponent(categoryName);
   const isMobile = useMediaQuery("(max-width:768px)");
 
-  const productsInCategory = useMemo(
-    () => data.filter((item) => item.category === decodedCategory),
-    [decodedCategory]
-  );
-
+  const [productsInCategory, setProductsInCategory] = useState([]);
   const [filters, setFilters] = useState({
     priceRange: [0, 5000],
     newArrivalOnly: false,
@@ -59,6 +54,18 @@ const CategoryPage = () => {
   });
 
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    // Fetch products for this category from backend
+    fetch(
+      `http://localhost:5000/api/products?category=${encodeURIComponent(
+        decodedCategory
+      )}&limit=1000`
+    )
+      .then((res) => res.json())
+      .then((res) => setProductsInCategory(res.products || []))
+      .catch(() => setProductsInCategory([]));
+  }, [decodedCategory]);
 
   const handlePriceChange = (_, newValue) => {
     setFilters((prev) => ({ ...prev, priceRange: newValue }));

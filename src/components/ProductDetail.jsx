@@ -32,7 +32,6 @@ import {
   ArrowBack,
 } from "@mui/icons-material";
 
-import data from "../data/clothes.json";
 import colors from "../colors";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -43,17 +42,34 @@ const ProductDetail = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  const product = data.find((item) => item.id === id);
-  const [mainImage, setMainImage] = useState(product?.image);
+  const [product, setProduct] = useState(null);
+  const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState(null);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
-  const [reviews, setReviews] = useState(product?.reviews || []);
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    // Fetch product by id from backend
+    fetch(`http://localhost:5000/api/products?id=${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        const prod = (res.products || []).find((item) => item.id === id);
+        setProduct(prod);
+        setMainImage(prod?.image || "");
+        setReviews(prod?.reviews || []);
+      })
+      .catch(() => {
+        setProduct(null);
+        setMainImage("");
+        setReviews([]);
+      });
+  }, [id]);
 
   if (!product) {
     return (
