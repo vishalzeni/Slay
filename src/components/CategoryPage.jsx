@@ -25,6 +25,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import colors from "../colors";
 import Header from "./Header";
 import Footer from "./Footer";
+import Wishlist from './Wishlist';
 
 const PremiumCard = styled(Card)({
   width: "100%",
@@ -399,6 +400,9 @@ const CategoryPage = () => {
                           )}
                         </Box>
                       </CardContent>
+                      <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 2 }}>
+                        <Wishlist productId={item.id} />
+                      </div>
                     </PremiumCard>
                   </Link>
                 ))}

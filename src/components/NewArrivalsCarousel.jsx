@@ -16,6 +16,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import colors from "../colors";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import Wishlist from "./Wishlist";
 
 const NewArrivalsCarousel = ({ id }) => {
   const [newArrivals, setNewArrivals] = React.useState([]);
@@ -24,7 +25,9 @@ const NewArrivalsCarousel = ({ id }) => {
     fetch("http://localhost:5000/api/products?limit=1000")
       .then((res) => res.json())
       .then((res) => {
-        setNewArrivals((res.products || []).filter((item) => item.isNewArrival));
+        setNewArrivals(
+          (res.products || []).filter((item) => item.isNewArrival)
+        );
       })
       .catch(() => setNewArrivals([]));
   }, []);
@@ -154,30 +157,32 @@ const NewArrivalsCarousel = ({ id }) => {
                       height: "100%",
                       objectFit: "cover",
                       transition: "transform 0.4s ease",
-                      "&:hover": {
-                        transform: "scale(1.05)",
-                      },
                     }}
                   />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      zIndex: 2,
+                    }}
+                  >
+                    <Wishlist productId={item.id} />
+                  </div>
                   {item.isNewArrival && (
-                    <Box
+                    <Chip
+                      label="New"
+                      size="small"
                       sx={{
                         position: "absolute",
-                        top: 12,
-                        right: 12,
+                        top: 10,
+                        left: 10,
                         backgroundColor: colors.primary,
                         color: "#fff",
-                        px: 1.5,
-                        py: 0.5,
-                        borderRadius: "4px",
+                        fontWeight: 600,
                         fontSize: "0.75rem",
-                        fontWeight: 700,
-                        letterSpacing: 0.5,
-                        zIndex: 1,
                       }}
-                    >
-                      NEW
-                    </Box>
+                    />
                   )}
                 </Box>
 

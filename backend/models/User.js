@@ -5,8 +5,16 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
   password: { type: String, required: true },
-  userId: { type: String, required: true, unique: true }, // Unique user ID
-  createdAt: { type: Date, default: Date.now }, // Store registration date
+  userId: { type: String, required: true, unique: true },
+  createdAt: { type: Date, default: Date.now },
+  avatar: { type: String },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
+  wishlist: {
+  type: [String], // productId strings
+  default: []
+}
+
 });
 
 module.exports = mongoose.model("User", userSchema);

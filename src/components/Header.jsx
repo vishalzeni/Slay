@@ -120,9 +120,9 @@ function Header() {
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", phone: "", avatar: "" });
   const navigate = useNavigate();
-  const { user, handleLogout } = useContext(UserContext);
+  const { user, handleLogout, setUser } = useContext(UserContext);
 
-  const toggleDrawer = (open: boolean) => () => setDrawerOpen(open);
+  const toggleDrawer = (open) => () => setDrawerOpen(open);
 
   const handleNewArrivalsClick = (e) => {
     // If already on home page, scroll to section
@@ -162,7 +162,11 @@ function Header() {
 
   // For dialog edit
   const startEdit = () => {
-    setEditForm({ name: user.name, phone: user.phone, avatar: user.avatar || "" });
+    setEditForm({
+      name: user.name,
+      phone: user.phone,
+      avatar: user.avatar || "",
+    });
     setEditMode(true);
   };
   const cancelEdit = () => setEditMode(false);
@@ -178,30 +182,35 @@ function Header() {
     reader.readAsDataURL(file);
   };
 
-  const saveEdit = () => {
-    // Save to context and localStorage
-    const updated = { ...user, name: editForm.name, phone: editForm.phone, avatar: editForm.avatar };
-    if (typeof window !== "undefined") {
-      localStorage.setItem("user", JSON.stringify(updated));
-    }
-    if (typeof handleLogout === "function") {
-      // Use setUser if available in context, else fallback
-      if (typeof window !== "undefined" && window.dispatchEvent) {
-        // Notify other tabs
-        window.dispatchEvent(new Event("storage"));
-      }
-    }
-    if (typeof window !== "undefined" && window.location) {
-      // Update context
-      if (typeof window.__setUser === "function") window.__setUser(updated);
-    }
-    if (typeof window !== "undefined" && window.location) {
-      // Fallback: reload to update context
-      window.location.reload();
+ const saveEdit = async () => {
+  try {
+    const response = await fetch("http://localhost:5000/api/user/profile", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
+      },
+      body: JSON.stringify({
+        userId: user.userId, // <-- yeh line add ki
+        name: editForm.name,
+        phone: editForm.phone,
+        avatar: editForm.avatar,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to update profile");
+    const updated = await response.json();
+
+    if (typeof setUser === "function") {
+      setUser(updated);
     }
     setEditMode(false);
     setDialogOpen(false);
-  };
+  } catch (err) {
+    alert("Profile update failed. Please try again.");
+  }
+};
+
 
   // Define all nav items with route paths
   const navItems = [
@@ -243,12 +252,8 @@ function Header() {
               </Tooltip>
             ) : (
               <Box sx={{ display: "flex", gap: { xs: 0.5, md: 1 } }}>
-                {navItems.slice(0, 4).map(({ label, path, onClick }) => (
-                  <NavButton
-                    component={RouterLink}
-                    to={path}
-                    onClick={onClick}
-                  >
+                {navItems.slice(0, 4).map(({ label, path, onClick }, idx) => (
+                  <NavButton component={RouterLink} to={path} onClick={onClick} key={label || idx}>
                     {label}
                   </NavButton>
                 ))}
@@ -301,13 +306,13 @@ function Header() {
             }}
           >
             {!isMobile &&
-              navItems.slice(4).map(({ label, path }) => (
-                <NavButton component={RouterLink} to={path} key={label}>
+              navItems.slice(4).map(({ label, path }, idx) => (
+                <NavButton component={RouterLink} to={path} key={label || idx}>
                   {label}
                 </NavButton>
               ))}
-            {!isMobile && (
-              user ? (
+            {!isMobile &&
+              (user ? (
                 <Tooltip title={user.name} arrow>
                   <Avatar
                     src={user.avatar}
@@ -333,12 +338,18 @@ function Header() {
                     <AccountCircleIcon />
                   </IconWrapper>
                 </Tooltip>
-              )
-            )}
+              ))}
             <Tooltip title="Wishlist" arrow>
-              <IconWrapper aria-label="wishlist">
-                <FavoriteBorderIcon />
-              </IconWrapper>
+              <Link
+                component={RouterLink}
+                to="/wishlist"
+                underline="none"
+                color="inherit"
+              >
+                <IconWrapper aria-label="wishlist">
+                  <FavoriteBorderIcon />
+                </IconWrapper>
+              </Link>
             </Tooltip>
             <Tooltip title="Cart" arrow>
               <IconWrapper aria-label="cart">
@@ -499,7 +510,12 @@ function Header() {
                   />
                 </ListItem>
               ) : (
-                <ListItem button component={RouterLink} to="/signup" onClick={toggleDrawer(false)}>
+                <ListItem
+                  button
+                  component={RouterLink}
+                  to="/signup"
+                  onClick={toggleDrawer(false)}
+                >
                   <Tooltip title="Go to Account" arrow>
                     <AccountCircleIcon sx={{ color: colors.primary, mr: 1 }} />
                   </Tooltip>
@@ -547,7 +563,9 @@ function Header() {
         >
           <CloseIcon />
         </IconButton>
-        <DialogTitle sx={{ textAlign: "center", color: colors.primary, fontWeight: 700 }}>
+        <DialogTitle
+          sx={{ textAlign: "center", color: colors.primary, fontWeight: 700 }}
+        >
           {user ? "Account Info" : "Welcome"}
         </DialogTitle>
         <DialogContent sx={{ textAlign: "center" }}>
@@ -568,7 +586,8 @@ function Header() {
                     boxShadow: `0 2px 8px ${colors.primary}22`,
                   }}
                 >
-                  {!(editMode ? editForm.avatar : user.avatar) && getInitials(user.name)}
+                  {!(editMode ? editForm.avatar : user.avatar) &&
+                    getInitials(user.name)}
                 </Avatar>
                 {editMode && (
                   <Box sx={{ mt: 1 }}>
@@ -604,13 +623,30 @@ function Header() {
               {!editMode ? (
                 <>
                   <Box sx={{ textAlign: "left", mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: colors.primary, mb: 1 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 600, color: colors.primary, mb: 1 }}
+                    >
                       {user.name}
                     </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
                       <EmailIcon sx={{ color: colors.primary, fontSize: 18 }} />
                       <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 500, color: colors.icon, lineHeight: 1 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 500,
+                            color: colors.icon,
+                            lineHeight: 1,
+                          }}
+                        >
                           Email
                         </Typography>
                         <Typography variant="body2" sx={{ color: colors.icon }}>
@@ -618,10 +654,24 @@ function Header() {
                         </Typography>
                       </Box>
                     </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
                       <PhoneIcon sx={{ color: colors.primary, fontSize: 18 }} />
                       <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 500, color: colors.icon, lineHeight: 1 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 500,
+                            color: colors.icon,
+                            lineHeight: 1,
+                          }}
+                        >
                           Phone
                         </Typography>
                         <Typography variant="body2" sx={{ color: colors.icon }}>
@@ -629,10 +679,26 @@ function Header() {
                         </Typography>
                       </Box>
                     </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                      <PermIdentityIcon sx={{ color: colors.primary, fontSize: 18 }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 2,
+                      }}
+                    >
+                      <PermIdentityIcon
+                        sx={{ color: colors.primary, fontSize: 18 }}
+                      />
                       <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 500, color: colors.icon, lineHeight: 1 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 500,
+                            color: colors.icon,
+                            lineHeight: 1,
+                          }}
+                        >
                           User ID
                         </Typography>
                         <Typography variant="body2" sx={{ color: colors.icon }}>
@@ -649,7 +715,9 @@ function Header() {
                     <input
                       type="text"
                       value={editForm.name}
-                      onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, name: e.target.value }))
+                      }
                       style={{
                         fontWeight: 600,
                         fontSize: "1.1rem",
@@ -668,7 +736,9 @@ function Header() {
                     <input
                       type="text"
                       value={editForm.phone}
-                      onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, phone: e.target.value }))
+                      }
                       style={{
                         fontWeight: 500,
                         fontSize: "1rem",
@@ -796,6 +866,5 @@ function Header() {
     </>
   );
 }
-
 
 export default Header;

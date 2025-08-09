@@ -3,8 +3,7 @@ require('dotenv').config(); // <-- Add this line at the very top
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
-// Add nodemailer
+const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
 // Configure nodemailer transporter using environment variables
@@ -35,6 +34,7 @@ const sendMail = async ({ to, subject, html }) => {
       from: '"Sumansi Clothing" <info@sumansi.in>',
       to,
       subject,
+      
       html,
     });
     console.log(`[Mail] Successfully sent mail to ${to} with subject "${subject}"`);
@@ -49,27 +49,19 @@ const sendMail = async ({ to, subject, html }) => {
 };
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 // Warn if secrets are missing
-if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
-  console.warn("JWT_SECRET or JWT_REFRESH_SECRET is missing from environment variables.");
+if (!JWT_SECRET) {
+  console.warn("JWT_SECRET is missing from environment variables.");
 }
 
-// Generate tokens
-const generateTokens = (user) => {
-  const accessToken = jwt.sign(
-    { id: user._id, email: user.email },
+// Generate access token only
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { id: user._id, email: user.email, userId: user.userId }, // <-- add userId here
     JWT_SECRET,
     { expiresIn: "15m" }
   );
-  const refreshToken = jwt.sign(
-    { id: user._id, email: user.email },
-    JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRY || "7d" }
-  );
-
-  return { accessToken, refreshToken };
 };
 
 // Signup
@@ -83,9 +75,8 @@ exports.signup = async (req, res) => {
     if (existingUser) return res.status(400).json({ error: "Email already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Use dynamic import for nanoid
     const { nanoid } = await import('nanoid');
-    const userId = nanoid(12); // Generate unique userId
+    const userId = nanoid(12);
     const user = new User({ name, email, phone, password: hashedPassword, userId });
     await user.save();
 
@@ -113,21 +104,14 @@ exports.signup = async (req, res) => {
       `,
     });
 
-    const tokens = generateTokens(user);
-    res
-      .cookie("refreshToken", tokens.refreshToken, {
-        httpOnly: true,
-        path: "/api/refresh",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      })
-      .json({
-        message: "User registered successfully",
-        accessToken: tokens.accessToken,
-        user: { _id: user._id, name, email, phone, createdAt: user.createdAt, userId: user.userId },
-      });
+    const accessToken = generateAccessToken(user);
+    res.json({
+      message: "User registered successfully",
+      accessToken,
+      user: { _id: user._id, name, email, phone, createdAt: user.createdAt, userId: user.userId },
+    });
   } catch (err) {
-    console.error(err); // Add this line for debugging
+    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -165,38 +149,141 @@ exports.login = async (req, res) => {
       `,
     });
 
-    const tokens = generateTokens(user);
-    res
-      .cookie("refreshToken", tokens.refreshToken, {
-        httpOnly: true,
-        path: "/api/refresh",
-      })
-      .json({
-        message: "Login successful",
-        accessToken: tokens.accessToken,
-        user: { _id: user._id, name: user.name, email: user.email, phone: user.phone },
-      });
+    const accessToken = generateAccessToken(user);
+    res.json({
+      message: "Login successful",
+      accessToken,
+      user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, userId: user.userId },
+    });
   } catch (err) {
-    console.error(err); // Add this line for debugging
+    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-// Refresh Token
-exports.refreshToken = (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.status(401).json({ error: "No refresh token" });
+// Forgot Password
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email required" });
 
-  jwt.verify(refreshToken, JWT_REFRESH_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: "Invalid refresh token" });
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: "No user found with that email" });
 
-    const accessToken = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-      expiresIn: "15m",
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
+    user.resetPasswordToken = resetTokenHash;
+    user.resetPasswordExpires = Date.now() + 1000 * 60 * 30; // 30 minutes
+    await user.save();
+
+    // Send reset email
+    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/reset-password/${resetToken}`;
+    await sendMail({
+      to: user.email,
+      subject: "Password Reset - Sumansi Clothing",
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:500px;margin:auto;padding:24px;background:#faf7ff;border-radius:12px;border:1px solid #eee;">
+          <h2 style="color:#7a4eab;">Password Reset Request</h2>
+          <p>Hello, ${user.name}.<br/>
+          We received a request to reset your password for your Sumansi Clothing account.</p>
+          <p>
+            <a href="${resetUrl}" style="background:#7a4eab;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold;">Reset Password</a>
+          </p>
+          <p>This link will expire in 30 minutes.</p>
+          <hr style="margin:24px 0;border:none;border-top:1px solid #eee;">
+          <small style="color:#888;">If you did not request this, please ignore this email.</small>
+        </div>
+      `,
     });
 
-    res.json({ accessToken });
-  });
+    res.json({ message: "Password reset link sent to your email." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
 };
+
+// Reset Password
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    const resetTokenHash = require("crypto").createHash("sha256").update(token).digest("hex");
+    console.log("Reset token:", token);
+    console.log("Hashed token:", resetTokenHash);
+
+    const user = await User.findOne({
+      resetPasswordToken: resetTokenHash,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    console.log("User found for reset:", user);
+
+    if (!user) return res.status(400).json({ error: "Invalid or expired token" });
+
+    user.password = await bcrypt.hash(password, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    await sendMail({
+      to: user.email,
+      subject: "Password Changed - Sumansi Clothing",
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:500px;margin:auto;padding:24px;background:#faf7ff;border-radius:12px;border:1px solid #eee;">
+          <h2 style="color:#7a4eab;">Password Changed</h2>
+          <p>Hello, ${user.name}.<br/>
+          Your password has been changed successfully.</p>
+          <hr style="margin:24px 0;border:none;border-top:1px solid #eee;">
+          <small style="color:#888;">If you did not do this, please contact support immediately.</small>
+        </div>
+      `,
+    });
+
+    res.json({ message: "Password has been reset successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { userId, name, phone, avatar } = req.body;
+
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    // Find user by userId field in your schema
+    const user = await User.findOne({ userId: userId }); // ✅ Using userId instead of _id
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update fields if provided
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (avatar) user.avatar = avatar;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      avatar: updatedUser.avatar,
+      userId: updatedUser.userId,
+      createdAt: updatedUser.createdAt,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 
 
 

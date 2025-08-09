@@ -15,6 +15,8 @@ import AboutPage from "./About";
 import AdminPanel from "./admin/AdminPanel";
 import Signup from "./Signup";
 import Login from "./Login";
+import ResetPassword from "./ResetPassword";
+import WishlistPage from "./components/WishlistPage";
 
 export const UserContext = React.createContext();
 
@@ -55,9 +57,10 @@ function App() {
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
+
             {/* Fallback Route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
       </div>

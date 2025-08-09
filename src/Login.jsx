@@ -20,6 +20,10 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { UserContext } from "./App";
 import { LoadingButton } from "@mui/lab";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -28,6 +32,10 @@ const Login = () => {
   const [accessToken, setAccessToken] = useState(""); // JWT in state
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [loading, setLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState("");
   const navigate = useNavigate();
   const { handleAuth } = useContext(UserContext);
 
@@ -77,6 +85,30 @@ const Login = () => {
       setSnackbar({ open: true, message: "Network error", severity: "error" });
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) {
+      setForgotMsg("Please enter your email.");
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setForgotMsg(data.error || "Failed to send reset link.");
+      } else {
+        setForgotMsg(data.message || "Reset link sent.");
+      }
+    } catch {
+      setForgotMsg("Network error.");
+    }
+    setForgotLoading(false);
   };
 
   const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
@@ -155,6 +187,12 @@ const Login = () => {
                   ),
                 }}
               />
+              <Button
+                sx={{ textTransform: "none", fontSize: "0.95rem", color: colors.primary, alignSelf: "flex-end" }}
+                onClick={() => setForgotOpen(true)}
+              >
+                Forgot password?
+              </Button>
 
               {error && (
                 <Typography color="error" fontSize="0.95rem">
@@ -230,6 +268,29 @@ const Login = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      <Dialog open={forgotOpen} onClose={() => { setForgotOpen(false); setForgotMsg(""); }}>
+        <DialogTitle>Forgot Password</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Email"
+            type="email"
+            value={forgotEmail}
+            onChange={e => setForgotEmail(e.target.value)}
+            fullWidth
+            sx={{ mt: 1 }}
+          />
+          {forgotMsg && (
+            <Typography color={forgotMsg.includes("sent") ? "success.main" : "error"} sx={{ mt: 2 }}>
+              {forgotMsg}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setForgotOpen(false); setForgotMsg(""); }}>Cancel</Button>
+          <LoadingButton loading={forgotLoading} onClick={handleForgotPassword}>Send Link</LoadingButton>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

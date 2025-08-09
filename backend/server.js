@@ -8,6 +8,7 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const Product = require("./models/Product");
 const announcementRoutes = require("./routes/announcementRoutes");
+const wishlistRoutes = require("./routes/wishlistRoutes");
 
 
 dotenv.config();
@@ -39,9 +40,9 @@ app.use(cookieParser());
 connectDB();
 
 // Routes
-app.use("/api/auth", authRoutes);
-
+app.use("/api", authRoutes);
 app.use("/api/announcements", announcementRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 
 // Image upload endpoint (protected)

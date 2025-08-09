@@ -13,7 +13,7 @@ import {
 import { styled } from "@mui/system";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import colors from "../colors";
-
+import Wishlist from "./Wishlist"; // Import Wishlist component
 const groupByCategory = (items) => {
   const grouped = {};
   items.forEach((item) => {
@@ -163,6 +163,16 @@ const ClothingGallery = () => {
                     style={{ textDecoration: "none" }}
                   >
                     <PremiumCard>
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          zIndex: 2,
+                        }}
+                      >
+                        <Wishlist productId={item.id} />
+                      </div>
                       <CardMedia
                         component="img"
                         image={item.image}
@@ -174,22 +184,6 @@ const ClothingGallery = () => {
                           borderTopRightRadius: 12,
                         }}
                       />
-
-                      {item.isNewArrival && (
-                        <Chip
-                          label="New"
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 10,
-                            left: 10,
-                            backgroundColor: colors.primary,
-                            color: "#fff",
-                            fontWeight: 600,
-                            fontSize: "0.75rem",
-                          }}
-                        />
-                      )}
 
                       <CardContent sx={{ px: 2, py: 1 }}>
                         <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -301,7 +295,9 @@ const ClothingGallery = () => {
               </Box>
             </Link>
           </Box>
-          <Divider sx={{ my: 4, borderBottomWidth:"2px", borderColor: colors.border }} />
+          <Divider
+            sx={{ my: 4, borderBottomWidth: "2px", borderColor: colors.border }}
+          />
         </Box>
       ))}
     </Box>

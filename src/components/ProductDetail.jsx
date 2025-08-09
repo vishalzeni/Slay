@@ -35,6 +35,7 @@ import {
 import colors from "../colors";
 import Header from "./Header";
 import Footer from "./Footer";
+import Wishlist from "./Wishlist";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -114,12 +115,11 @@ const ProductDetail = () => {
       <Header />
       <Box
         sx={{
-          backgroundColor: colors.background,
           position: "relative",
+          backgroundColor: colors.background,
           minHeight: "calc(100vh - 64px)", // Adjust for header height
           paddingTop: isMobile ? 0 : 2,
           paddingBottom: isMobile ? "80px" : "64px", // Space for sticky buttons or content
-
         }}
       >
         {/* Back button for mobile */}
@@ -176,29 +176,40 @@ const ProductDetail = () => {
                       flexDirection: "column",
                     }}
                   >
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 16,
+                        left: 16,
+                        right: 16,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        zIndex: 10,
+                      }}
+                    >
+                      {product.isNewArrival && (
+                        <Chip
+                          label="New Arrival"
+                          sx={{
+                            backgroundColor: colors.badge,
+                            color: colors.badgeText,
+                            fontWeight: 600,
+                            fontSize: "0.7rem",
+                          }}
+                          size="small"
+                        />
+                      )}
+
+                      <Wishlist productId={product.id} />
+                    </Box>
+
                     {/* Main Image */}
                     <ImageMagnifier
                       src={mainImage}
                       zoom={2.5}
                       magnifierSize={150}
                     />
-
-                    {product.isNewArrival && (
-                      <Chip
-                        label="New Arrival"
-                        sx={{
-                          position: "absolute",
-                          top: 16,
-                          right: 16,
-                          backgroundColor: colors.badge,
-                          color: colors.badgeText,
-                          fontWeight: 600,
-                          fontSize: "0.7rem",
-                          zIndex: 10,
-                        }}
-                        size="small"
-                      />
-                    )}
                   </Box>
 
                   {/* Thumbnails */}
@@ -606,7 +617,9 @@ const ProductDetail = () => {
                               <Button
                                 variant="contained"
                                 onClick={handleReviewSubmit}
-                                disabled={!reviewText.trim() || reviewRating === 0}
+                                disabled={
+                                  !reviewText.trim() || reviewRating === 0
+                                }
                                 sx={{
                                   background: `linear-gradient(90deg, ${colors.primary} 0%, #ff7043 100%)`,
                                   fontWeight: 600,
@@ -632,7 +645,8 @@ const ProductDetail = () => {
                               color="text.secondary"
                               sx={{ fontStyle: "italic" }}
                             >
-                              No reviews yet. Be the first to share your feedback!
+                              No reviews yet. Be the first to share your
+                              feedback!
                             </Typography>
                           ) : (
                             <Stack spacing={2}>

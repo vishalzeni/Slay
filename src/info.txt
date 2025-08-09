@@ -1,13 +1,10 @@
+add to cart.
 contact us page.
 show all users in dashboard.
 add banner access from admin.
-add forgot password.
-add to cart.
-wishlist.
 
-wishlist and add to cart is related to user.
 filter out extra things from footer.
 add socials links in footer.
 show all subscribed emails.
 
-add loading and snackbar at every point.
+
