@@ -9,6 +9,10 @@ const cloudinary = require("cloudinary").v2;
 const Product = require("./models/Product");
 const announcementRoutes = require("./routes/announcementRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const cartRoutes = require("./routes/cart"); // <-- Import cart router
+const User = require("./models/User");
+const { requireAuth } = require("./middleware/authMiddleware");
+const mongoose = require("mongoose");
 
 
 dotenv.config();
@@ -43,7 +47,20 @@ connectDB();
 app.use("/api", authRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/cart", cartRoutes); // <-- Use cart router here
+app.use("/api/user", require("./routes/userRoutes"));
 
+// --- Add this route for admin users list ---
+app.get("/api/users", async (req, res) => {
+  try {
+    // Optionally: restrict to admin users only
+    // if (!req.user || !req.user.isAdmin) return res.status(403).json({ error: "Forbidden" });
+    const users = await User.find({}, "-password -resetPasswordToken -resetPasswordExpires");
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
 
 // Image upload endpoint (protected)
 app.post("/api/upload", upload.single("image"), async (req, res) => {
@@ -69,16 +86,27 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
 });
 
 // Product create endpoint (protected)
-app.post("/api/products",  async (req, res) => {
+app.post("/api/products", async (req, res) => {
   try {
     const productData = {
       ...req.body,
       createdAt: new Date(),
       inStock: req.body.inStock !== undefined ? req.body.inStock : true,
-      sizes: Array.isArray(req.body.sizes) ? req.body.sizes : req.body.sizes ? req.body.sizes.split(",").map(s => s.trim()) : [],
+      sizes: Array.isArray(req.body.sizes)
+        ? req.body.sizes
+        : req.body.sizes
+        ? req.body.sizes.split(",").map((s) => s.trim())
+        : [],
     };
     if (!productData.name || !productData.image) {
-      return res.status(400).json({ error: "Product name and image are required" });
+      return res
+        .status(400)
+        .json({ error: "Product name and image are required" });
+    }
+    // Prevent duplicate product id
+    const exists = await Product.findOne({ id: productData.id });
+    if (exists) {
+      return res.status(400).json({ error: "Product ID already exists" });
     }
     const product = new Product(productData);
     await product.save();

@@ -1,4 +1,3 @@
-
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
@@ -13,10 +12,15 @@ exports.requireAuth = async (req, res, next) => {
 	const token = authHeader.split(" ")[1];
 	try {
 		const decoded = jwt.verify(token, JWT_SECRET);
-		// Attach user info to req.user
+		// Attach user info to req.user (include _id and userId)
 		const user = await User.findOne({ userId: decoded.userId });
 		if (!user) return res.status(401).json({ error: "User not found" });
-		req.user = { id: user.userId, name: user.name, email: user.email };
+		req.user = {
+			id: user.userId,
+			_id: user._id,
+			name: user.name,
+			email: user.email
+		};
 		next();
 	} catch (err) {
 		return res.status(401).json({ error: "Invalid token" });

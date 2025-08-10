@@ -9,11 +9,21 @@ import {
   Chip,
   IconButton,
   Divider,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Stack,
+  TextField,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import colors from "../colors";
 import Wishlist from "./Wishlist"; // Import Wishlist component
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useCart } from "../hooks/useCart";
+
 const groupByCategory = (items) => {
   const grouped = {};
   items.forEach((item) => {
@@ -46,6 +56,11 @@ const ClothingGallery = () => {
   const groupedItems = groupByCategory(data);
   const scrollRefs = useRef({});
   const [showNav, setShowNav] = useState({});
+  const { addToCart = () => {} } = useCart() || {};
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogProduct, setDialogProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     // Fetch products from backend
@@ -82,6 +97,21 @@ const ClothingGallery = () => {
         left: direction === "left" ? -300 : 300,
         behavior: "smooth",
       });
+    }
+  };
+
+  const handleAddToCartClick = (item) => {
+    setDialogProduct(item);
+    setSelectedSize("");
+    setQuantity(1);
+    setDialogOpen(true);
+  };
+
+  const handleDialogAddToCart = () => {
+    if (dialogProduct && selectedSize) {
+      // Pass size and quantity as arguments
+      addToCart(dialogProduct, quantity, selectedSize);
+      setDialogOpen(false);
     }
   };
 
@@ -158,38 +188,36 @@ const ClothingGallery = () => {
                   key={item.id}
                   sx={{ flex: "0 0 auto", scrollSnapAlign: "start", mt: 2 }}
                 >
-                  <Link
-                    to={`/product/${item.id}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <PremiumCard>
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          right: 8,
-                          zIndex: 2,
-                        }}
-                      >
-                        <Wishlist productId={item.id} />
-                      </div>
+                  <PremiumCard>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        zIndex: 2,
+                      }}
+                    >
+                      <Wishlist productId={item.id} />
+                    </div>
+                    <Link
+                      to={`/product/${item.id}`}
+                      style={{ textDecoration: "none" }}
+                    >
                       <CardMedia
                         component="img"
                         image={item.image}
                         alt={item.name}
                         sx={{
-                          height: { xs: 220, sm: 300 }, // Increased height
+                          height: { xs: 220, sm: 300 },
                           objectFit: "cover",
                           borderTopLeftRadius: 12,
                           borderTopRightRadius: 12,
                         }}
                       />
-
                       <CardContent sx={{ px: 2, py: 1 }}>
                         <Typography variant="subtitle1" sx={{ mb: 1 }}>
                           {item.name}
                         </Typography>
-
                         <Box sx={{ textAlign: "center", mb: 1 }}>
                           <Typography
                             variant="h6"
@@ -197,7 +225,6 @@ const ClothingGallery = () => {
                           >
                             ₹{item.price.toLocaleString()}
                           </Typography>
-
                           {item.marketPrice > item.price && (
                             <Box
                               sx={{
@@ -235,8 +262,27 @@ const ClothingGallery = () => {
                           )}
                         </Box>
                       </CardContent>
-                    </PremiumCard>
-                  </Link>
+                    </Link>
+                    <Box sx={{ display: "flex", justifyContent: "center", mt: 1, mb: 2 }}>
+                      <Button
+                        variant="outlined"
+                        startIcon={<ShoppingCartIcon />}
+                        onClick={() => handleAddToCartClick(item)}
+                        sx={{
+                          borderColor: colors.primary,
+                          color: colors.primary,
+                          borderRadius: 2,
+                          fontWeight: 600,
+                          "&:hover": {
+                            background: colors.primary,
+                            color: "#fff",
+                          },
+                        }}
+                      >
+                        Add to Cart
+                      </Button>
+                    </Box>
+                  </PremiumCard>
                 </Box>
               ))}
             </Box>
@@ -300,8 +346,73 @@ const ClothingGallery = () => {
           />
         </Box>
       ))}
+      {/* Add to Cart Dialog */}
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle sx={{ fontWeight: 700, color: colors.primary }}>
+          Select Size & Quantity
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ minWidth: 250 }}>
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+              {dialogProduct?.sizes?.map((size) => (
+                <Chip
+                  key={size}
+                  label={size}
+                  clickable
+                  color={selectedSize === size ? "primary" : "default"}
+                  onClick={() => setSelectedSize(size)}
+                  sx={{
+                    px: 2,
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    backgroundColor:
+                      selectedSize === size ? colors.primary : "#fff",
+                    color: selectedSize === size ? "#fff" : colors.primary,
+                    border: `1px solid ${colors.primary}`,
+                  }}
+                />
+              ))}
+            </Stack>
+            <TextField
+              label="Quantity"
+              type="number"
+              size="small"
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+              inputProps={{ min: 1, style: { width: 60 } }}
+              sx={{
+                width: 120,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  borderColor: colors.primary,
+                },
+              }}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)} sx={{ color: colors.primary }}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleDialogAddToCart}
+            disabled={!selectedSize}
+            sx={{
+              background: colors.primary,
+              color: colors.badgeText,
+              fontWeight: 700,
+              borderRadius: 2,
+              "&:hover": { background: "#a83200" },
+            }}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
 
 export default ClothingGallery;
+

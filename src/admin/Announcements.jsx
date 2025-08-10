@@ -1,85 +1,286 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, TextField, Button, List, ListItem, IconButton } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import colors from "../colors";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Card,
+  CardContent,
+  Divider,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import {
+  Delete as DeleteIcon,
+  Add as AddIcon,
+  Announcement as AnnouncementIcon,
+} from "@mui/icons-material";
 import axios from "axios";
+import colors from "../colors";
 
 const Announcements = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  
   const [announcements, setAnnouncements] = useState([]);
   const [newAnnouncement, setNewAnnouncement] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
   const fetchAnnouncements = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get("http://localhost:5000/api/announcements");
       setAnnouncements(data);
     } catch (error) {
       console.error("Failed to fetch announcements:", error);
+      showSnackbar("Failed to fetch announcements", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   const addAnnouncement = async () => {
-    if (!newAnnouncement.trim()) return;
+    if (!newAnnouncement.trim()) {
+      showSnackbar("Announcement cannot be empty", "warning");
+      return;
+    }
+    
+    setLoading(true);
     try {
-      const { data } = await axios.post("http://localhost:5000/api/announcements", { text: newAnnouncement });
+      const { data } = await axios.post("http://localhost:5000/api/announcements", { 
+        text: newAnnouncement 
+      });
       setAnnouncements(data);
       setNewAnnouncement("");
+      showSnackbar("Announcement added successfully", "success");
     } catch (error) {
       console.error("Failed to add announcement:", error);
+      showSnackbar("Failed to add announcement", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   const deleteAnnouncement = async (id) => {
+    setLoading(true);
     try {
-      const { data } = await axios.delete(`http://localhost:5000/api/announcements/${id}`);
+      const { data } = await axios.delete(
+        `http://localhost:5000/api/announcements/${id}`
+      );
       setAnnouncements(data);
+      showSnackbar("Announcement deleted", "success");
     } catch (error) {
       console.error("Failed to delete announcement:", error);
+      showSnackbar("Failed to delete announcement", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showSnackbar = (message, severity) => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      addAnnouncement();
     }
   };
 
   return (
-    <Box>
-      <Typography variant="h5" mb={2}>
-        Manage Announcements
-      </Typography>
+    <Box sx={{ p: isMobile ? 2 : 3 }}>
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
-      <Box display="flex" mb={2}>
-        <TextField
-          label="New Announcement"
-          variant="outlined"
-          value={newAnnouncement}
-          onChange={(e) => setNewAnnouncement(e.target.value)}
-          fullWidth
-          sx={{ mr: 2 }}
+      {/* Header */}
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+        <AnnouncementIcon
+          color="primary"
+          sx={{ fontSize: 32, mr: 2, color: colors.primary }}
         />
-        <Button variant="contained" color="primary" onClick={addAnnouncement}>
-          Add
-        </Button>
+        <Typography variant="h5" fontWeight="bold">
+          Announcements
+        </Typography>
       </Box>
 
-      <List>
-        {announcements.map((announcement) => (
-          <ListItem
-            key={announcement._id}
+      {/* Add Announcement Card */}
+      <Card
+        sx={{
+          mb: 3,
+          borderRadius: 2,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <CardContent>
+          <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+            Create New Announcement
+          </Typography>
+          <Box
             sx={{
-              bgcolor: colors.drawerBg,
-              borderRadius: 2,
-              mb: 1,
               display: "flex",
-              justifyContent: "space-between",
+              flexDirection: isMobile ? "column" : "row",
+              gap: 2,
             }}
           >
-            {announcement.text}
-            <IconButton color="error" onClick={() => deleteAnnouncement(announcement._id)}>
-              <DeleteIcon />
-            </IconButton>
-          </ListItem>
-        ))}
-      </List>
+            <TextField
+              variant="outlined"
+              placeholder="Type your announcement here..."
+              value={newAnnouncement}
+              onChange={(e) => setNewAnnouncement(e.target.value)}
+              onKeyPress={handleKeyPress}
+              fullWidth
+              multiline
+              rows={2}
+              sx={{
+                flexGrow: 1,
+                color: colors.text,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  "& fieldset": {
+                    borderColor: colors.border,
+                  },
+                  "&:hover fieldset": {
+                    borderColor: colors.primary,
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.primary,
+                  },
+
+                },
+                
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={addAnnouncement}
+              disabled={loading || !newAnnouncement.trim()}
+              startIcon={<AddIcon />}
+              sx={{
+                borderRadius: 2,
+                minWidth: isMobile ? "100%" : 120,
+                padding: "5px 20px",
+                textTransform: "none",
+                fontWeight: "bold",
+                backgroundColor: colors.primary,
+              }}
+            >
+              {loading ? <CircularProgress size={24} /> : "Add"}
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Announcements List */}
+      <Card
+        sx={{
+          borderRadius: 2,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <CardContent>
+          <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+            Current Announcements ({announcements.length})
+          </Typography>
+          
+          {loading && announcements.length === 0 ? (
+            <Box display="flex" justifyContent="center" py={4}>
+              <CircularProgress />
+            </Box>
+          ) : announcements.length === 0 ? (
+            <Box
+              sx={{
+                py: 4,
+                textAlign: "center",
+                color: "text.secondary",
+              }}
+            >
+              <Typography>No announcements yet</Typography>
+            </Box>
+          ) : (
+            <List sx={{ p: 0 }}>
+              {announcements.map((announcement, index) => (
+                <React.Fragment key={announcement._id}>
+                  <ListItem
+                    sx={{
+                      bgcolor: colors.drawerBg,
+                      borderRadius: 2,
+                      mb: 1,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      transition: "0.2s",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: 1,
+                      },
+                    }}
+                  >
+                    <ListItemText
+                      primary={announcement.text}
+                      primaryTypographyProps={{
+                        fontWeight: "medium",
+                      }}
+                      secondary={`Created: ${new Date(
+                        announcement.createdAt
+                      ).toLocaleString()}`}
+                    />
+                    <IconButton
+                      color="error"
+                      onClick={() => deleteAnnouncement(announcement._id)}
+                      disabled={loading}
+                      sx={{
+                        ml: 2,
+                        "&:hover": {
+                          backgroundColor: "error.light",
+                        },
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItem>
+                  {index < announcements.length - 1 && (
+                    <Divider sx={{ my: 1 }} />
+                  )}
+                </React.Fragment>
+              ))}
+            </List>
+          )}
+        </CardContent>
+      </Card>
     </Box>
   );
 };

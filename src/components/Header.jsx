@@ -20,25 +20,18 @@ import {
   Link,
   Tooltip,
   Avatar,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Typography,
 } from "@mui/material";
 import {
   FavoriteBorder as FavoriteBorderIcon,
   ShoppingCart as ShoppingCartIcon,
   AccountCircle as AccountCircleIcon,
   Menu as MenuIcon,
-  Close as CloseIcon,
   ChevronRightOutlined,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  PermIdentity as PermIdentityIcon,
-  Edit as EditIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import logo from "../assets/SUMAN.png";
+import { useCart } from "../hooks/useCart";
+import AccountDialog from "./AccountDialog";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: colors.background,
@@ -104,6 +97,21 @@ const IconWrapper = styled(IconButton)(({ theme }) => ({
   },
 }));
 
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    backgroundColor: colors.primary,
+    color: colors.badgeText,
+    fontWeight: 700,
+    fontSize: "0.75rem",
+    minWidth: "20px",
+    height: "20px",
+    borderRadius: "10px",
+    padding: "0 6px",
+    border: `2px solid ${colors.background}`, // Ensure badge stands out
+    boxShadow: `0 2px 4px ${colors.primary}33`,
+  },
+}));
+
 function getInitials(name) {
   if (!name) return "";
   const parts = name.trim().split(" ");
@@ -117,15 +125,13 @@ function Header() {
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [editForm, setEditForm] = useState({ name: "", phone: "", avatar: "" });
   const navigate = useNavigate();
   const { user, handleLogout, setUser } = useContext(UserContext);
+  const { cartItems = [] } = useCart() || {};
 
   const toggleDrawer = (open) => () => setDrawerOpen(open);
 
   const handleNewArrivalsClick = (e) => {
-    // If already on home page, scroll to section
     if (window.location.pathname === "/") {
       e.preventDefault();
       const newArrivalsSection = document.getElementById("new-arrivals");
@@ -133,86 +139,30 @@ function Header() {
         newArrivalsSection.scrollIntoView({ behavior: "smooth" });
       }
     }
-    // Otherwise, let the normal navigation happen (to /#new-arrivals)
   };
 
   const handleAvatarClick = () => setDialogOpen(true);
-  const handleDialogClose = () => setDialogOpen(false);
 
   const handleLogoutClick = () => {
-    setDialogOpen(false);
     handleLogout();
+    setDialogOpen(false);
   };
 
   const handleSignup = () => {
-    setDialogOpen(false);
     navigate("/signup");
+    setDialogOpen(false);
   };
 
   const handleLogin = () => {
-    setDialogOpen(false);
     navigate("/login");
+    setDialogOpen(false);
   };
 
-  // For mobile drawer: handle avatar click
   const handleDrawerAvatarClick = () => {
     setDialogOpen(true);
     setDrawerOpen(false);
   };
 
-  // For dialog edit
-  const startEdit = () => {
-    setEditForm({
-      name: user.name,
-      phone: user.phone,
-      avatar: user.avatar || "",
-    });
-    setEditMode(true);
-  };
-  const cancelEdit = () => setEditMode(false);
-
-  // Handle profile pic upload (convert to base64)
-  const handleAvatarUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setEditForm((f) => ({ ...f, avatar: reader.result }));
-    };
-    reader.readAsDataURL(file);
-  };
-
- const saveEdit = async () => {
-  try {
-    const response = await fetch("http://localhost:5000/api/user/profile", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user.token}`,
-      },
-      body: JSON.stringify({
-        userId: user.userId, // <-- yeh line add ki
-        name: editForm.name,
-        phone: editForm.phone,
-        avatar: editForm.avatar,
-      }),
-    });
-
-    if (!response.ok) throw new Error("Failed to update profile");
-    const updated = await response.json();
-
-    if (typeof setUser === "function") {
-      setUser(updated);
-    }
-    setEditMode(false);
-    setDialogOpen(false);
-  } catch (err) {
-    alert("Profile update failed. Please try again.");
-  }
-};
-
-
-  // Define all nav items with route paths
   const navItems = [
     { label: "Home", path: "/" },
     {
@@ -253,7 +203,12 @@ function Header() {
             ) : (
               <Box sx={{ display: "flex", gap: { xs: 0.5, md: 1 } }}>
                 {navItems.slice(0, 4).map(({ label, path, onClick }, idx) => (
-                  <NavButton component={RouterLink} to={path} onClick={onClick} key={label || idx}>
+                  <NavButton
+                    component={RouterLink}
+                    to={path}
+                    onClick={onClick}
+                    key={label || idx}
+                  >
                     {label}
                   </NavButton>
                 ))}
@@ -352,23 +307,18 @@ function Header() {
               </Link>
             </Tooltip>
             <Tooltip title="Cart" arrow>
-              <IconWrapper aria-label="cart">
-                <Badge
-                  badgeContent={2}
-                  color="error"
-                  sx={{
-                    "& .MuiBadge-badge": {
-                      right: 3,
-                      top: 8,
-                      backgroundColor: colors.badge,
-                      color: colors.badgeText,
-                      fontWeight: 600,
-                    },
-                  }}
-                >
-                  <ShoppingCartIcon />
-                </Badge>
-              </IconWrapper>
+              <Link
+                component={RouterLink}
+                to="/cart"
+                underline="none"
+                color="inherit"
+              >
+                <IconWrapper aria-label="cart" sx={{ ml: 1 }}>
+                  <StyledBadge badgeContent={cartItems.length}>
+                    <ShoppingCartIcon />
+                  </StyledBadge>
+                </IconWrapper>
+              </Link>
             </Tooltip>
           </Box>
         </Toolbar>
@@ -533,336 +483,15 @@ function Header() {
         </Box>
       </SwipeableDrawer>
 
-      {/* Account Dialog */}
-      <Dialog
+      <AccountDialog
         open={dialogOpen}
-        onClose={handleDialogClose}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            bgcolor: colors.cardBg,
-            boxShadow: `0 8px 32px ${colors.primary}33`,
-            p: 2,
-            position: "relative",
-          },
-        }}
-      >
-        {/* Close Icon */}
-        <IconButton
-          aria-label="close"
-          onClick={handleDialogClose}
-          sx={{
-            position: "absolute",
-            right: 12,
-            top: 12,
-            color: colors.primary,
-            zIndex: 10,
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-        <DialogTitle
-          sx={{ textAlign: "center", color: colors.primary, fontWeight: 700 }}
-        >
-          {user ? "Account Info" : "Welcome"}
-        </DialogTitle>
-        <DialogContent sx={{ textAlign: "center" }}>
-          {user ? (
-            <>
-              <Box sx={{ position: "relative", mb: 2 }}>
-                <Avatar
-                  src={editMode ? editForm.avatar : user.avatar}
-                  sx={{
-                    bgcolor: colors.primary,
-                    color: colors.badgeText,
-                    fontWeight: 700,
-                    width: 56,
-                    height: 56,
-                    fontSize: "1.5rem",
-                    mx: "auto",
-                    border: `2px solid ${colors.primary}`,
-                    boxShadow: `0 2px 8px ${colors.primary}22`,
-                  }}
-                >
-                  {!(editMode ? editForm.avatar : user.avatar) &&
-                    getInitials(user.name)}
-                </Avatar>
-                {editMode && (
-                  <Box sx={{ mt: 1 }}>
-                    <input
-                      accept="image/*"
-                      type="file"
-                      style={{ display: "none" }}
-                      id="avatar-upload"
-                      onChange={handleAvatarUpload}
-                    />
-                    <label htmlFor="avatar-upload">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        component="span"
-                        sx={{
-                          mt: 1,
-                          fontSize: "0.85rem",
-                          borderRadius: 2,
-                          px: 2,
-                          py: 0.5,
-                          color: colors.primary,
-                          borderColor: colors.primary,
-                          "&:hover": { background: colors.accent },
-                        }}
-                      >
-                        Upload Photo
-                      </Button>
-                    </label>
-                  </Box>
-                )}
-              </Box>
-              {!editMode ? (
-                <>
-                  <Box sx={{ textAlign: "left", mb: 2 }}>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 600, color: colors.primary, mb: 1 }}
-                    >
-                      {user.name}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        mb: 1,
-                      }}
-                    >
-                      <EmailIcon sx={{ color: colors.primary, fontSize: 18 }} />
-                      <Box>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: 500,
-                            color: colors.icon,
-                            lineHeight: 1,
-                          }}
-                        >
-                          Email
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: colors.icon }}>
-                          {user.email}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        mb: 1,
-                      }}
-                    >
-                      <PhoneIcon sx={{ color: colors.primary, fontSize: 18 }} />
-                      <Box>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: 500,
-                            color: colors.icon,
-                            lineHeight: 1,
-                          }}
-                        >
-                          Phone
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: colors.icon }}>
-                          {user.phone}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        mb: 2,
-                      }}
-                    >
-                      <PermIdentityIcon
-                        sx={{ color: colors.primary, fontSize: 18 }}
-                      />
-                      <Box>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: 500,
-                            color: colors.icon,
-                            lineHeight: 1,
-                          }}
-                        >
-                          User ID
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: colors.icon }}>
-                          {user.userId}
-                        </Typography>
-                      </Box>
-                      {/* {console.log(user)} */}
-                    </Box>
-                  </Box>
-                </>
-              ) : (
-                <>
-                  <Box sx={{ mb: 2 }}>
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) =>
-                        setEditForm((f) => ({ ...f, name: e.target.value }))
-                      }
-                      style={{
-                        fontWeight: 600,
-                        fontSize: "1.1rem",
-                        color: colors.primary,
-                        border: "1px solid " + colors.primary,
-                        borderRadius: 4,
-                        padding: "6px 10px",
-                        marginBottom: 8,
-                        width: "80%",
-                        marginTop: 8,
-                      }}
-                      placeholder="Name"
-                    />
-                  </Box>
-                  <Box sx={{ mb: 2 }}>
-                    <input
-                      type="text"
-                      value={editForm.phone}
-                      onChange={(e) =>
-                        setEditForm((f) => ({ ...f, phone: e.target.value }))
-                      }
-                      style={{
-                        fontWeight: 500,
-                        fontSize: "1rem",
-                        color: colors.primary,
-                        border: "1px solid " + colors.primary,
-                        borderRadius: 4,
-                        padding: "6px 10px",
-                        width: "80%",
-                      }}
-                      placeholder="Phone"
-                    />
-                  </Box>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <Typography sx={{ mb: 2, color: colors.icon }}>
-                Please login or signup to access your account.
-              </Typography>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
-          {user ? (
-            !editMode ? (
-              <>
-                <Button
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  sx={{
-                    color: colors.primary,
-                    borderColor: colors.primary,
-                    fontWeight: 700,
-                    borderRadius: 2,
-                    px: 3,
-                    "&:hover": { background: colors.accent },
-                  }}
-                  onClick={startEdit}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{
-                    background: colors.primary,
-                    color: colors.badgeText,
-                    fontWeight: 700,
-                    borderRadius: 2,
-                    px: 4,
-                    "&:hover": { background: "#a83200" },
-                  }}
-                  onClick={handleLogoutClick}
-                >
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outlined"
-                  sx={{
-                    color: colors.primary,
-                    borderColor: colors.primary,
-                    fontWeight: 700,
-                    borderRadius: 2,
-                    px: 3,
-                    "&:hover": { background: colors.accent },
-                  }}
-                  onClick={cancelEdit}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{
-                    background: colors.primary,
-                    color: colors.badgeText,
-                    fontWeight: 700,
-                    borderRadius: 2,
-                    px: 4,
-                    "&:hover": { background: "#a83200" },
-                  }}
-                  onClick={saveEdit}
-                >
-                  Save
-                </Button>
-              </>
-            )
-          ) : (
-            <>
-              <Button
-                variant="contained"
-                sx={{
-                  background: colors.primary,
-                  color: colors.badgeText,
-                  fontWeight: 700,
-                  borderRadius: 2,
-                  px: 3,
-                  mr: 1,
-                  "&:hover": { background: "#a83200" },
-                }}
-                onClick={handleSignup}
-              >
-                Signup
-              </Button>
-              <Button
-                variant="outlined"
-                sx={{
-                  color: colors.primary,
-                  borderColor: colors.primary,
-                  fontWeight: 700,
-                  borderRadius: 2,
-                  px: 3,
-                  "&:hover": { background: colors.accent },
-                }}
-                onClick={handleLogin}
-              >
-                Login
-              </Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
+        onClose={() => setDialogOpen(false)}
+        user={user}
+        onLogout={handleLogoutClick}
+        onSignup={handleSignup}
+        onLogin={handleLogin}
+        setUser={setUser}
+      />
     </>
   );
 }

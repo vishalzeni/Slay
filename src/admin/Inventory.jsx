@@ -22,17 +22,24 @@ import {
   IconButton,
   Pagination,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   CloudUpload as UploadIcon,
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import colors from "../colors";
 
 const Inventory = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [productsError, setProductsError] = useState("");
@@ -51,7 +58,7 @@ const Inventory = () => {
   });
   const [actionLoading, setActionLoading] = useState(false);
 
-  const itemsPerPage = 9;
+  const itemsPerPage = isMobile ? 6 : isTablet ? 8 : 12;
 
   const fetchProducts = useCallback(async () => {
     setLoadingProducts(true);
@@ -75,7 +82,7 @@ const Inventory = () => {
     } finally {
       setLoadingProducts(false);
     }
-  }, [page, searchTerm, categoryFilter, sortBy]);
+  }, [page, searchTerm, categoryFilter, sortBy, itemsPerPage]);
 
   useEffect(() => {
     fetchProducts();
@@ -187,14 +194,26 @@ const Inventory = () => {
       const data = await response.json();
       if (response.ok) {
         setEditProduct({ ...editProduct, image: data.url });
-        setSnackbar({ open: true, message: "Image uploaded.", severity: "success" });
+        setSnackbar({
+          open: true,
+          message: "Image uploaded.",
+          severity: "success",
+        });
       } else {
         setProductsError("Image upload failed.");
-        setSnackbar({ open: true, message: "Image upload failed.", severity: "error" });
+        setSnackbar({
+          open: true,
+          message: "Image upload failed.",
+          severity: "error",
+        });
       }
     } catch (err) {
       setProductsError("Image upload failed.");
-      setSnackbar({ open: true, message: "Image upload failed.", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "Image upload failed.",
+        severity: "error",
+      });
     } finally {
       setUploading(false);
     }
@@ -216,7 +235,7 @@ const Inventory = () => {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: isMobile ? 1 : 3 }}>
       {/* Snackbar for feedback */}
       <Snackbar
         open={snackbar.open}
@@ -231,9 +250,7 @@ const Inventory = () => {
           severity={snackbar.severity}
           sx={{
             background:
-              snackbar.severity === "success"
-                ? colors.primary
-                : "#d32f2f",
+              snackbar.severity === "success" ? colors.primary : "#d32f2f",
             color: colors.badgeText,
             fontWeight: 600,
             fontSize: "1rem",
@@ -244,66 +261,94 @@ const Inventory = () => {
         </MuiAlert>
       </Snackbar>
 
+      <Card
+        sx={{
+          mb: 3,
+          p: isMobile ? 1.5 : 2.5,
+          width: "100%",
+          boxSizing: "border-box",
+          borderRadius: 3,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          background: colors.background,
+        }}
+      >
+        <Grid container spacing={2} alignItems="center">
+          {/* Search */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Search Products"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              fullWidth
+              size="small"
+              variant="outlined"
+              placeholder="Type product name..."
+              InputProps={{
+                sx: { borderRadius: 2 },
+              }}
+            />
+          </Grid>
 
-      <Card sx={{ mb: 3, p: 2, width: '100%', boxSizing: 'border-box' }}>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            label="Search Products"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            fullWidth
-            size="small"
-            variant="outlined"
-            sx={{ '& .MuiInputBase-root': { borderRadius: '8px' } }}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FormControl fullWidth size="small" variant="outlined">
-            <InputLabel>Category</InputLabel>
-            <Select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              label="Category"
-              sx={{ borderRadius: '8px' }}
+          {/* Category */}
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                label="Category"
+                sx={{ borderRadius: 2 }}
+              >
+                {categories.map((cat) => (
+                  <MenuItem key={cat} value={cat}>
+                    {cat}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Sort */}
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Sort By</InputLabel>
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                label="Sort By"
+                sx={{ borderRadius: 2 }}
+              >
+                <MenuItem value="createdAt-desc">Newest First</MenuItem>
+                <MenuItem value="createdAt-asc">Oldest First</MenuItem>
+                <MenuItem value="price-asc">Price: Low to High</MenuItem>
+                <MenuItem value="price-desc">Price: High to Low</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Refresh */}
+          <Grid item xs={12} sm={6} md={2}>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={fetchProducts}
+              startIcon={<RefreshIcon />}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                py: 1.1,
+                background: colors.primary,
+                fontWeight: 600,
+                "&:hover": {
+                  background: colors.primaryDark || colors.primary,
+                },
+              }}
             >
-              {categories.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              {isMobile ? "Refresh" : "Refresh"}
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <FormControl fullWidth size="small" variant="outlined">
-            <InputLabel>Sort By</InputLabel>
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              label="Sort By"
-              sx={{ borderRadius: '8px' }}
-            >
-              <MenuItem value="createdAt-desc">Newest First</MenuItem>
-              <MenuItem value="createdAt-asc">Oldest First</MenuItem>
-              <MenuItem value="price-asc">Price: Low to High</MenuItem>
-              <MenuItem value="price-desc">Price: High to Low</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={fetchProducts}
-            sx={{ borderRadius: '8px', textTransform: 'none', py: 1 }}
-          >
-            Refresh
-          </Button>
-        </Grid>
-      </Grid>
-    </Card>
+      </Card>
 
       {/* Product Display */}
       {loadingProducts ? (
@@ -322,7 +367,7 @@ const Inventory = () => {
         Object.entries(groupByCategory(products)).map(([category, items]) => (
           <Box key={category} sx={{ mb: 4 }}>
             <Typography
-              variant="h6"
+              variant={isMobile ? "subtitle1" : "h6"}
               fontWeight={600}
               sx={{
                 color: colors.primary,
@@ -336,9 +381,9 @@ const Inventory = () => {
               {category}
               <Divider sx={{ flexGrow: 1, ml: 2 }} />
             </Typography>
-            <Grid container spacing={3}>
+            <Grid container spacing={isMobile ? 1 : 3}>
               {items.map((item) => (
-                <Grid item xs={12} sm={6} md={4} key={item._id || item.id}>
+                <Grid item xs={12} sm={6} md={4} lg={3} key={item._id || item.id}>
                   <Card
                     sx={{
                       height: "100%",
@@ -353,7 +398,7 @@ const Inventory = () => {
                   >
                     <CardMedia
                       component="img"
-                      height="160"
+                      height={isMobile ? 140 : 160}
                       image={item.image}
                       alt={item.name}
                       onError={(e) => {
@@ -366,10 +411,10 @@ const Inventory = () => {
                         p: 1,
                       }}
                     />
-                    <CardContent sx={{ flexGrow: 1 }}>
+                    <CardContent sx={{ flexGrow: 1, p: isMobile ? 1 : 2 }}>
                       <Typography
                         gutterBottom
-                        variant="h6"
+                        variant={isMobile ? "subtitle2" : "h6"}
                         component="div"
                         fontWeight={600}
                         noWrap
@@ -395,6 +440,13 @@ const Inventory = () => {
                         variant="body2"
                         color="text.secondary"
                         paragraph
+                        sx={{
+                          fontSize: isMobile ? "0.75rem" : "0.875rem",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
                       >
                         {item.description || "No description available"}
                       </Typography>
@@ -427,50 +479,24 @@ const Inventory = () => {
                           color={item.inStock ? "success" : "error"}
                         />
                       </Box>
-
-                      {Array.isArray(item.images) && item.images.length > 0 && (
-                        <Box sx={{ mt: 1 }}>
-                          <Typography variant="caption" color="text.secondary">
-                            Additional Images:
-                          </Typography>
-                          <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
-                            {item.images.map((img, idx) => (
-                              <img
-                                key={idx}
-                                src={img}
-                                alt={`img${idx + 1}`}
-                                style={{
-                                  width: 40,
-                                  height: 40,
-                                  objectFit: "cover",
-                                  borderRadius: 4,
-                                  border: "1px solid #ddd",
-                                }}
-                                onError={(e) => {
-                                  e.target.src =
-                                    "https://via.placeholder.com/40x40?text=No+Img";
-                                }}
-                              />
-                            ))}
-                          </Box>
-                        </Box>
-                      )}
                     </CardContent>
-                    <Box sx={{ p: 2, display: "flex", gap: 1 }}>
+                    <Box sx={{ p: isMobile ? 1 : 2, display: "flex", gap: 1 }}>
                       <Tooltip title="Edit">
                         <IconButton
                           color="primary"
                           onClick={() => handleEditProduct(item)}
+                          size={isMobile ? "small" : "medium"}
                         >
-                          <EditIcon />
+                          <EditIcon fontSize={isMobile ? "small" : "medium"} />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete">
                         <IconButton
                           color="error"
                           onClick={() => handleDeleteProduct(item._id)}
+                          size={isMobile ? "small" : "medium"}
                         >
-                          <DeleteIcon />
+                          <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
                         </IconButton>
                       </Tooltip>
                     </Box>
@@ -488,6 +514,7 @@ const Inventory = () => {
         onClose={() => setEditDialogOpen(false)}
         maxWidth="sm"
         fullWidth
+        fullScreen={isMobile}
       >
         <DialogTitle>
           <Box display="flex" alignItems="center">
@@ -506,6 +533,7 @@ const Inventory = () => {
                 }
                 fullWidth
                 margin="normal"
+                size={isMobile ? "small" : "medium"}
               />
             </Grid>
             <Grid item xs={6} sm={3}>
@@ -518,6 +546,7 @@ const Inventory = () => {
                 }
                 fullWidth
                 margin="normal"
+                size={isMobile ? "small" : "medium"}
               />
             </Grid>
             <Grid item xs={6} sm={3}>
@@ -533,6 +562,7 @@ const Inventory = () => {
                 }
                 fullWidth
                 margin="normal"
+                size={isMobile ? "small" : "medium"}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -544,6 +574,7 @@ const Inventory = () => {
                 }
                 fullWidth
                 margin="normal"
+                size={isMobile ? "small" : "medium"}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -555,6 +586,7 @@ const Inventory = () => {
                 }
                 fullWidth
                 margin="normal"
+                size={isMobile ? "small" : "medium"}
               />
             </Grid>
             <Grid item xs={12}>
@@ -571,6 +603,7 @@ const Inventory = () => {
                 margin="normal"
                 multiline
                 rows={3}
+                size={isMobile ? "small" : "medium"}
               />
             </Grid>
             <Grid item xs={12}>
@@ -581,6 +614,7 @@ const Inventory = () => {
                 disabled={uploading}
                 fullWidth
                 sx={{ mt: 1 }}
+                size={isMobile ? "small" : "medium"}
               >
                 {uploading ? "Uploading..." : "Upload New Image"}
                 <input type="file" hidden onChange={handleImageUpload} />
@@ -596,6 +630,7 @@ const Inventory = () => {
                     maxHeight: 200,
                     objectFit: "contain",
                     borderRadius: 8,
+                    marginTop: 16,
                   }}
                 />
               </Grid>
@@ -603,7 +638,11 @@ const Inventory = () => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)} disabled={actionLoading}>
+          <Button
+            onClick={() => setEditDialogOpen(false)}
+            disabled={actionLoading}
+            size={isMobile ? "small" : "medium"}
+          >
             Cancel
           </Button>
           <Button
@@ -617,8 +656,11 @@ const Inventory = () => {
             variant="contained"
             color="primary"
             startIcon={
-              actionLoading ? <CircularProgress size={18} color="inherit" /> : null
+              actionLoading ? (
+                <CircularProgress size={18} color="inherit" />
+              ) : null
             }
+            size={isMobile ? "small" : "medium"}
           >
             {actionLoading ? "Updating..." : "Update Product"}
           </Button>
@@ -627,7 +669,7 @@ const Inventory = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4, mb: 2 }}>
           <Pagination
             count={totalPages}
             page={page}
@@ -635,8 +677,9 @@ const Inventory = () => {
             color="primary"
             showFirstButton
             showLastButton
-            siblingCount={1}
-            boundaryCount={1}
+            siblingCount={isMobile ? 0 : 1}
+            boundaryCount={isMobile ? 1 : 2}
+            size={isMobile ? "small" : "medium"}
           />
         </Box>
       )}

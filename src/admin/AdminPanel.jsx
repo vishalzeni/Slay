@@ -15,10 +15,9 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-
+import { Dashboard } from "@mui/icons-material";
 import {
   AddCircleOutline,
-  Dashboard,
   Inventory as InventoryIcon,
   Menu,
   Close,
@@ -29,12 +28,13 @@ import colors from "../colors";
 import AddProduct from "./AddProduct";
 import Inventory from "./Inventory";
 import Announcements from "./Announcements";
+import UsersList from "./UsersList"; // <-- Add this import
 
 const sidebarItems = [
   { text: "Add Product", icon: <AddCircleOutline /> },
-  { text: "Dashboard", icon: <Dashboard /> },
   { text: "Inventory", icon: <InventoryIcon /> },
   { text: "Announcements", icon: <CampaignIcon /> },
+  { text: "Users", icon: <Dashboard /> }, // <-- Add Users item (reuse Dashboard icon or pick another)
 ];
 
 const AdminPanel = () => {
@@ -303,10 +303,12 @@ const AdminPanel = () => {
         >
           {selected === 0 ? (
             <AddProduct />
-          ) : selected === 2 ? (
+          ) : selected === 1 ? (
             <Inventory />
-          ) : selected === 3 ? (
+          ) : selected === 2 ? (
             <Announcements />
+          ) : selected === 3 ? (
+            <UsersList />
           ) : (
             <Box
               sx={{

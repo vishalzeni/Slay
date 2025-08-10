@@ -49,6 +49,7 @@ const sendMail = async ({ to, subject, html }) => {
 };
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
 
 // Warn if secrets are missing
 if (!JWT_SECRET) {
@@ -58,9 +59,9 @@ if (!JWT_SECRET) {
 // Generate access token only
 const generateAccessToken = (user) => {
   return jwt.sign(
-    { id: user._id, email: user.email, userId: user.userId }, // <-- add userId here
+    { id: user._id, email: user.email, userId: user.userId },
     JWT_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: JWT_EXPIRY }
   );
 };
 

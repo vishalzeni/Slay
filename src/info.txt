@@ -1,7 +1,7 @@
-add to cart.
-contact us page.
 show all users in dashboard.
 add banner access from admin.
+contact us page.
+about page.
 
 filter out extra things from footer.
 add socials links in footer.

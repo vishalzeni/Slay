@@ -13,8 +13,16 @@ const userSchema = new mongoose.Schema({
   wishlist: {
   type: [String], // productId strings
   default: []
-}
-
+},
+  cart: [
+    {
+      // Allow both ObjectId and String for productId
+      productId: { type: String, required: true },
+      quantity: { type: Number, default: 1 },
+      size: { type: String },
+      // Add more fields as needed (e.g., color)
+    }
+  ],
 });
 
 module.exports = mongoose.model("User", userSchema);

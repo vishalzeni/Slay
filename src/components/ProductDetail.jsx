@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import ImageMagnifier from "../utilities/ImageMagnifier"; // adjust path as needed
+import { useCart } from "../hooks/useCart";
 
 import {
   Box,
@@ -50,6 +51,7 @@ const ProductDetail = () => {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [reviews, setReviews] = useState([]);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -518,6 +520,9 @@ const ProductDetail = () => {
                                 backgroundColor: colors.accent,
                               },
                             }}
+                            onClick={() =>
+                              addToCart(product, quantity || 1, selectedSize)
+                            }
                           >
                             Add to Cart
                           </Button>
@@ -773,6 +778,9 @@ const ProductDetail = () => {
                       backgroundColor: colors.accent,
                     },
                   }}
+                  onClick={() =>
+                    addToCart(product, quantity || 1, selectedSize)
+                  }
                 >
                   Add to Cart
                 </Button>
