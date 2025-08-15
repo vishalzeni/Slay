@@ -24,6 +24,7 @@ import {
   Campaign as CampaignIcon,
 } from "@mui/icons-material";
 
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import colors from "../colors";
 import AddProduct from "./AddProduct";
 import Inventory from "./Inventory";
@@ -36,7 +37,7 @@ const sidebarItems = [
   { text: "Inventory", icon: <InventoryIcon /> },
   { text: "Announcements", icon: <CampaignIcon /> },
   { text: "Users", icon: <Dashboard /> },
-  { text: "Banners", icon: <Dashboard /> },
+  { text: "Banners", icon: <StorefrontIcon /> },
 ];
 
 const AdminPanel = () => {

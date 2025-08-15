@@ -18,27 +18,45 @@ const Hero = () => {
 
   const API_KEY = "mansisumansi"; // Your API key
 
-  // Fetch active banners
-  useEffect(() => {
-    const fetchBanners = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("http://localhost:5000/api/banner/active", {
-          headers: { "x-api-key": API_KEY },
-        });
-        if (!res.ok) {
-          throw new Error(`Failed to fetch banners: ${res.statusText}`);
-        }
-        const data = await res.json();
-        setBanners(data);
-      } catch (err) {
-        setError("Failed to load banners. Please try again.");
-        console.error(err);
-      } finally {
+  // Check if banners are cached for today
+  const checkAndFetchBanners = async () => {
+    try {
+      setLoading(true);
+      const cachedBanners = localStorage.getItem("heroBanners");
+      const cachedDate = localStorage.getItem("heroBannersFetchDate");
+      const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+      // If cached banners exist and were fetched today, use them
+      if (cachedBanners && cachedDate === today) {
+        setBanners(JSON.parse(cachedBanners));
         setLoading(false);
+        return;
       }
-    };
-    fetchBanners();
+
+      // Fetch new banners if no cache or cache is outdated
+      const res = await fetch("http://localhost:5000/api/banner/active", {
+        headers: { "x-api-key": API_KEY },
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch banners: ${res.statusText}`);
+      }
+      const data = await res.json();
+      setBanners(data);
+
+      // Store banners and today's date in localStorage
+      localStorage.setItem("heroBanners", JSON.stringify(data));
+      localStorage.setItem("heroBannersFetchDate", today);
+    } catch (err) {
+      setError("Failed to load banners. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch or load banners on mount
+  useEffect(() => {
+    checkAndFetchBanners();
   }, []);
 
   // Handle auto-slide

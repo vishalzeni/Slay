@@ -16,7 +16,7 @@ import React, { useState, useEffect } from "react";
 import Home from "./Home";
 import ProductDetail from "./components/ProductDetail";
 import CategoryPage from "./components/CategoryPage";
-import AboutPage from "./About";
+import About from "./pages/About";
 import AdminPanel from "./admin/AdminPanel";
 import Signup from "./Signup";
 import Login from "./Login";
@@ -24,6 +24,7 @@ import ResetPassword from "./ResetPassword";
 import WishlistPage from "./components/WishlistPage";
 import CartPage from "./pages/CartPage";
 import { CartProvider } from "./hooks/useCart";
+import Contact from "./pages/Contact";
 
 export const UserContext = React.createContext();
 
@@ -69,7 +70,8 @@ function App() {
                 path="/category/:categoryName"
                 element={<CategoryPage />}
               />
-              <Route path="/about" element={<AboutPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/login" element={<Login />} />

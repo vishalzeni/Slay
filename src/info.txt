@@ -1,11 +1,9 @@
-add banner access from admin.
-contact us page.
-about page.
+new arrivals
 our collection 
 sale
 
 filter out extra things from footer.
 add socials links in footer.
-show all subscribed emails.
+show all subscribed emails. ya remake footer by remoting it. which is best option.
 
 
