@@ -29,12 +29,14 @@ import AddProduct from "./AddProduct";
 import Inventory from "./Inventory";
 import Announcements from "./Announcements";
 import UsersList from "./UsersList"; // <-- Add this import
+import BannerList from "./BannerList";
 
 const sidebarItems = [
   { text: "Add Product", icon: <AddCircleOutline /> },
   { text: "Inventory", icon: <InventoryIcon /> },
   { text: "Announcements", icon: <CampaignIcon /> },
-  { text: "Users", icon: <Dashboard /> }, // <-- Add Users item (reuse Dashboard icon or pick another)
+  { text: "Users", icon: <Dashboard /> },
+  { text: "Banners", icon: <Dashboard /> },
 ];
 
 const AdminPanel = () => {
@@ -309,6 +311,8 @@ const AdminPanel = () => {
             <Announcements />
           ) : selected === 3 ? (
             <UsersList />
+          ) : selected === 4 ? (
+            <BannerList />
           ) : (
             <Box
               sx={{

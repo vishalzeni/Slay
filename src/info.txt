@@ -1,7 +1,8 @@
-show all users in dashboard.
 add banner access from admin.
 contact us page.
 about page.
+our collection 
+sale
 
 filter out extra things from footer.
 add socials links in footer.

@@ -9,11 +9,10 @@ const cloudinary = require("cloudinary").v2;
 const Product = require("./models/Product");
 const announcementRoutes = require("./routes/announcementRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
-const cartRoutes = require("./routes/cart"); // <-- Import cart router
+const cartRoutes = require("./routes/cart");
 const User = require("./models/User");
 const { requireAuth } = require("./middleware/authMiddleware");
 const mongoose = require("mongoose");
-
 
 dotenv.config();
 const app = express();
@@ -39,7 +38,6 @@ app.use(
 );
 app.use(cookieParser());
 
-
 // Connect DB
 connectDB();
 
@@ -47,14 +45,12 @@ connectDB();
 app.use("/api", authRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/wishlist", wishlistRoutes);
-app.use("/api/cart", cartRoutes); // <-- Use cart router here
+app.use("/api/cart", cartRoutes);
 app.use("/api/user", require("./routes/userRoutes"));
-
-// --- Add this route for admin users list ---
+app.use("/api/banner", require("./routes/bannerRoutes"));
+// Admin users list (protected)
 app.get("/api/users", async (req, res) => {
-  try {
-    // Optionally: restrict to admin users only
-    // if (!req.user || !req.user.isAdmin) return res.status(403).json({ error: "Forbidden" });
+    try {
     const users = await User.find({}, "-password -resetPasswordToken -resetPasswordExpires");
     res.json(users);
   } catch (err) {
@@ -62,18 +58,18 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// Image upload endpoint (protected)
+ // Image upload endpoint (no auth required)
 app.post("/api/upload", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
     const stream = cloudinary.uploader.upload_stream(
-      { folder: "sumansi-products" },
+      { folder: "sumansi-banners" },
       (error, result) => {
         if (error) {
           console.error("[Upload] Cloudinary error:", error);
-          return res.status(500).json({ error: "Cloudinary error" });
+          return res.status(500).json({ error: "Cloudinary upload failed" });
         }
         res.json({ url: result.secure_url });
       }
@@ -102,8 +98,7 @@ app.post("/api/products", async (req, res) => {
       return res
         .status(400)
         .json({ error: "Product name and image are required" });
-    }
-    // Prevent duplicate product id
+      }
     const exists = await Product.findOne({ id: productData.id });
     if (exists) {
       return res.status(400).json({ error: "Product ID already exists" });
@@ -117,7 +112,7 @@ app.post("/api/products", async (req, res) => {
   }
 });
 
-// Get all products endpoint with search, filter, sort, and pagination
+// Get all products endpoint  
 app.get("/api/products", async (req, res) => {
   try {
     const { page = 1, limit = 9, search = "", category = "", sort = "createdAt-desc", id } = req.query;
@@ -155,7 +150,7 @@ app.get("/api/products", async (req, res) => {
 });
 
 // Update product endpoint (protected)
-app.put("/api/products/:id", async (req, res) => {
+app.post("/api/products", async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(
       req.params.id,

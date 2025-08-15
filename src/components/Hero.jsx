@@ -1,22 +1,45 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSwipeable } from "react-swipeable";
-import { Box, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery, useTheme, CircularProgress, Typography, Snackbar, Alert } from "@mui/material";
 import colors from "../colors";
-
-const banners = [
-  "https://yashnira.com/cdn/shop/files/yashnira-banner-2.jpg?v=1751443973&width=2000",
-  "https://yashnira.com/cdn/shop/files/Second_Desktop_Landing_edf21aa0-75b8-490f-96d9-9d5975ccec30.jpg?v=1746795639&width=2000",
-  "https://yashnira.com/cdn/shop/files/yashnira-banner_2.jpg?v=1751444725&width=2000",
-];
 
 const Hero = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const extendedBanners = [banners[banners.length - 1], ...banners, banners[0]];
-  const [index, setIndex] = useState(1); // start at first real slide
+  const [banners, setBanners] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const extendedBanners = banners.length
+    ? [banners[banners.length - 1], ...banners, banners[0]]
+    : [];
+  const [index, setIndex] = useState(1); // Start at first real slide
   const sliderRef = useRef(null);
   const timerRef = useRef(null);
+
+  const API_KEY = "mansisumansi"; // Your API key
+
+  // Fetch active banners
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://localhost:5000/api/banner/active", {
+          headers: { "x-api-key": API_KEY },
+        });
+        if (!res.ok) {
+          throw new Error(`Failed to fetch banners: ${res.statusText}`);
+        }
+        const data = await res.json();
+        setBanners(data);
+      } catch (err) {
+        setError("Failed to load banners. Please try again.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBanners();
+  }, []);
 
   // Handle auto-slide
   const resetTimer = () => {
@@ -27,21 +50,22 @@ const Hero = () => {
   };
 
   useEffect(() => {
-    resetTimer();
-    return () => clearInterval(timerRef.current);
-  }, []);
+    if (banners.length > 0) {
+      resetTimer();
+      return () => clearInterval(timerRef.current);
+    }
+  }, [banners]);
 
-  // Smooth infinite loop handler (no flick)
+  // Smooth infinite loop handler
   useEffect(() => {
     const total = extendedBanners.length;
     const slider = sliderRef.current;
 
-    if (!slider) return;
+    if (!slider || !total) return;
 
     slider.style.transition = "transform 0.6s ease";
     slider.style.transform = `translateX(-${index * (100 / total)}%)`;
 
-    // After transition ends, reset instantly without transition
     const handleTransitionEnd = () => {
       if (index === 0) {
         slider.style.transition = "none";
@@ -60,10 +84,55 @@ const Hero = () => {
 
   // Swipe support
   const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => setIndex((prev) => prev + 1),
-    onSwipedRight: () => setIndex((prev) => prev - 1),
+    onSwipedLeft: () => {
+      setIndex((prev) => prev + 1);
+      resetTimer();
+    },
+    onSwipedRight: () => {
+      setIndex((prev) => prev - 1);
+      resetTimer();
+    },
     trackMouse: true,
   });
+
+  // Loading state
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          height: isMobile ? "300px" : "400px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <CircularProgress />
+        <Typography ml={2}>Loading banners...</Typography>
+      </Box>
+    );
+  }
+
+  // No banners state
+  if (!banners.length) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          height: isMobile ? "300px" : "400px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <Typography variant="h6" color="textSecondary">
+          No active banners available.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -88,13 +157,13 @@ const Hero = () => {
           height: "100%",
         }}
       >
-        {extendedBanners.map((img, i) => (
+        {extendedBanners.map((banner, i) => (
           <Box
-            key={i}
+            key={banner._id ? `${banner._id}-${i}` : i} // Use _id for unique key
             sx={{
               width: `${100 / extendedBanners.length}%`,
               height: "100%",
-              backgroundImage: `url(${img})`,
+              backgroundImage: `url(${banner.image})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -116,8 +185,11 @@ const Hero = () => {
       >
         {banners.map((_, i) => (
           <Box
-            key={i}
-            onClick={() => setIndex(i + 1)}
+            key={banners[i]._id}
+            onClick={() => {
+              setIndex(i + 1);
+              resetTimer();
+            }}
             sx={{
               width: 10,
               height: 10,
@@ -129,6 +201,17 @@ const Hero = () => {
           />
         ))}
       </Box>
+
+      {/* Error Snackbar */}
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+      >
+        <Alert onClose={() => setError(null)} severity="error" sx={{ width: "100%" }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
