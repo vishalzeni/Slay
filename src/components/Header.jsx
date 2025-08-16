@@ -20,6 +20,7 @@ import {
   Link,
   Tooltip,
   Avatar,
+  ListItemButton,
 } from "@mui/material";
 import {
   FavoriteBorder as FavoriteBorderIcon,
@@ -127,7 +128,7 @@ function Header() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { user, handleLogout, setUser } = useContext(UserContext);
-  const { cartItems = [] } = useCart() || {};
+  const { cartItems, loading } = useCart(); // this is safe now
 
   const toggleDrawer = (open) => () => setDrawerOpen(open);
 
@@ -307,18 +308,38 @@ function Header() {
               </Link>
             </Tooltip>
             <Tooltip title="Cart" arrow>
-              <Link
-                component={RouterLink}
-                to="/cart"
-                underline="none"
-                color="inherit"
-              >
-                <IconWrapper aria-label="cart" sx={{ ml: 1 }}>
-                  <StyledBadge badgeContent={cartItems.length}>
-                    <ShoppingCartIcon />
-                  </StyledBadge>
-                </IconWrapper>
-              </Link>
+              <Box sx={{ ml: 1 }}>
+                {loading ? (
+                  <IconWrapper disabled>
+                    <StyledBadge badgeContent={0}>
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          border: "2px solid",
+                          borderColor: `${colors.primary}44`,
+                          borderTopColor: colors.primary,
+                          borderRadius: "50%",
+                          animation: "spin 1s linear infinite",
+                        }}
+                      />
+                    </StyledBadge>
+                  </IconWrapper>
+                ) : (
+                  <Link
+                    component={RouterLink}
+                    to="/cart"
+                    underline="none"
+                    color="inherit"
+                  >
+                    <IconWrapper aria-label="cart">
+                      <StyledBadge badgeContent={cartItems.length}>
+                        <ShoppingCartIcon />
+                      </StyledBadge>
+                    </IconWrapper>
+                  </Link>
+                )}
+              </Box>
             </Tooltip>
           </Box>
         </Toolbar>
@@ -378,44 +399,47 @@ function Header() {
             <List disablePadding>
               {navItems.map(({ label, path, onClick }) => (
                 <Tooltip title={label} arrow key={label}>
-                  <ListItem
-                    button
-                    component={RouterLink}
-                    to={path}
-                    onClick={(e) => {
-                      toggleDrawer(false)();
-                      if (onClick) onClick(e);
-                    }}
-                    sx={{
-                      borderTop: `1px solid ${colors.border}`,
-                      borderBottom: `1px solid ${colors.border}`,
-                      px: 2,
-                      py: 1.2,
-                      transition: "all 0.3s ease",
-                      "&:hover .arrow-icon": {
-                        transform: "translateX(6px)",
-                        opacity: 1,
-                      },
-                    }}
-                  >
-                    <ListItemText
-                      primary={label}
-                      primaryTypographyProps={{
-                        fontWeight: 400,
-                        color: colors.primary,
-                      }}
-                    />
-                    <ChevronRightOutlined
-                      className="arrow-icon"
-                      sx={{
-                        ml: 1,
-                        fontSize: 20,
-                        transition: "all 0.3s ease",
-                        transform: "translateX(0)",
-                        opacity: 0.7,
-                        color: colors.primary,
-                      }}
-                    />
+                  <ListItem disablePadding key={label}>
+                    <Tooltip title={label} arrow>
+                      <ListItemButton
+                        component={RouterLink}
+                        to={path}
+                        onClick={(e) => {
+                          setDrawerOpen(false);
+                          if (onClick) onClick(e);
+                        }}
+                        sx={{
+                          borderTop: `1px solid ${colors.border}`,
+                          borderBottom: `1px solid ${colors.border}`,
+                          px: 2,
+                          py: 1.2,
+                          transition: "all 0.3s ease",
+                          "&:hover .arrow-icon": {
+                            transform: "translateX(6px)",
+                            opacity: 1,
+                          },
+                        }}
+                      >
+                        <ListItemText
+                          primary={label}
+                          primaryTypographyProps={{
+                            fontWeight: 400,
+                            color: colors.primary,
+                          }}
+                        />
+                        <ChevronRightOutlined
+                          className="arrow-icon"
+                          sx={{
+                            ml: 1,
+                            fontSize: 20,
+                            transition: "all 0.3s ease",
+                            transform: "translateX(0)",
+                            opacity: 0.7,
+                            color: colors.primary,
+                          }}
+                        />
+                      </ListItemButton>
+                    </Tooltip>
                   </ListItem>
                 </Tooltip>
               ))}

@@ -78,7 +78,8 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(userWithId));
       setTimeout(() => {
         setLoading(false);
-        navigate("/");
+        navigate("/", { replace: true });
+        window.location.reload();
       }, 1200);
     } catch (err) {
       setError("Network error");

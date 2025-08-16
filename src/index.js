@@ -5,11 +5,16 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme"; // adjust path if needed
+import { CartProvider } from "./hooks/useCart";
+import eruda from 'eruda';
+eruda.init();
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
+      <CartProvider>
+        <CssBaseline />
+        <App />
+      </CartProvider>
     </ThemeProvider>
   </React.StrictMode>
 );
