@@ -2,45 +2,231 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" href="%PUBLIC_URL%/sumansi_favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#BE3900" />
+
+    <!-- SEO Meta Tags -->
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Sumansi - Elegant and stylish ladies wear collection. Explore sarees, suits, kurtis, and trendy outfits designed for modern women with a traditional touch."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <meta
+      name="keywords"
+      content="Sumansi, ladies wear, women's fashion, sarees, suits, kurtis, dresses, Indian clothing, ethnic wear, women's apparel, stylish outfits"
+    />
+    <meta name="author" content="Sumansi Team" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph (Social Media Preview) -->
+    <meta property="og:title" content="Sumansi - Elegant Ladies Wear" />
+    <meta
+      property="og:description"
+      content="Discover Sumansi's exclusive collection of sarees, suits, kurtis, and fashionable women's wear for every occasion."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.sumansi.com/" />
+    <meta property="og:image" content="%PUBLIC_URL%/sumansi_og.png" />
+    <meta property="og:image:alt" content="Sumansi Logo" />
+
+    <!-- Preload assets -->
+    <link rel="preload" href="%PUBLIC_URL%/sumansi_logo.png" as="image" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-      <!-- public/index.html -->
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
-    <title>React App</title>
+    <title>Sumansi - Ladies Clothing Brand</title>
+
+    <style>
+      .loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #fff9f5;
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
+
+      .logo-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .loader img {
+        width: 200px;
+        animation: subtlePulse 2s infinite ease-in-out;
+      }
+
+      .loader-bar-container {
+        width: 60%;
+        max-width: 400px;
+        height: 6px;
+        background: #f5e6de;
+        overflow: hidden;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(190, 57, 0, 0.08);
+        margin-top: 1.5rem;
+      }
+
+      .loader-bar {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, #be3900, #fdefe7);
+        border-radius: 6px;
+        transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .loading-text {
+        font-size: 0.85rem;
+        color: #888;
+        margin-top: 1.2rem;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+      }
+
+      .percentage {
+        font-weight: 500;
+        color: #be3900;
+      }
+
+      .main-content {
+        min-height: 100vh;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+
+      @keyframes subtlePulse {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.03);
+          opacity: 0.95;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .loader img {
+          width: 140px;
+        }
+
+        .brand-name {
+          font-size: 1.5rem;
+        }
+
+        .loader-bar-container {
+          width: 70%;
+        }
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <!-- Loader Section -->
+    <div id="loader" class="loader" aria-live="polite">
+      <div class="logo-container">
+        <img src="./SUMAN.png" alt="Sumansi Logo" loading="eager" />
+      </div>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+      <div
+        class="loader-bar-container"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >
+        <div class="loader-bar" id="progressBar"></div>
+      </div>
+
+      <div class="loading-text">
+        Loading <span id="percentage" class="percentage">0%</span>
+      </div>
+    </div>
+
+    <!-- React Root -->
+    <main
+      id="content"
+      class="main-content"
+      style="display: none"
+      aria-hidden="true"
+    >
+      <div id="root" role="main"></div>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const loader = document.getElementById("loader");
+        const content = document.getElementById("content");
+        const progressBar = document.getElementById("progressBar");
+        const percentageEl = document.getElementById("percentage");
+        const loaderBarContainer = document.querySelector(
+          ".loader-bar-container"
+        );
+
+        let progress = 0;
+        const totalTime = 2200; // Slightly longer for a more deliberate feel
+        const intervalTime = 30;
+        const steps = totalTime / intervalTime;
+        const increment = 100 / steps;
+
+        const loadingInterval = setInterval(() => {
+          progress += increment;
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(loadingInterval);
+          }
+          progressBar.style.width = `${progress}%`;
+          percentageEl.textContent = `${Math.round(progress)}%`;
+          loaderBarContainer.setAttribute(
+            "aria-valuenow",
+            Math.round(progress)
+          );
+        }, intervalTime);
+
+        setTimeout(() => {
+          loader.style.animation = "fadeOut 0.5s ease-out forwards";
+
+          setTimeout(() => {
+            loader.style.display = "none";
+            content.style.display = "block";
+
+            setTimeout(() => {
+              content.style.opacity = "1";
+              content.style.transform = "translateY(0)";
+              content.setAttribute("aria-hidden", "false");
+            }, 50);
+          }, 500);
+        }, totalTime);
+      });
+    </script>
   </body>
 </html>

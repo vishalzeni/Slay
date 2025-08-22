@@ -263,7 +263,7 @@ const ClothingGallery = () => {
                         </Box>
                       </CardContent>
                     </Link>
-                    <Box sx={{ display: "flex", justifyContent: "center", mt: 1, mb: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
                       <Button
                         variant="outlined"
                         startIcon={<ShoppingCartIcon />}

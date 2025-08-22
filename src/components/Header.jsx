@@ -108,7 +108,6 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     height: "20px",
     borderRadius: "10px",
     padding: "0 6px",
-    border: `2px solid ${colors.background}`, // Ensure badge stands out
     boxShadow: `0 2px 4px ${colors.primary}33`,
   },
 }));
