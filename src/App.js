@@ -12,6 +12,8 @@ import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/600.css";
 import "@fontsource/poppins/700.css";
 import React, { useState, useEffect } from "react";
+import TokenTrackerProvider from "./TokenTrackerProvider";
+import ExpiryDialog from "./ExpiryDialog";
 import Home from "./Home";
 import ProductDetail from "./components/ProductDetail";
 import CategoryPage from "./components/CategoryPage";
@@ -28,10 +30,13 @@ import Contact from "./pages/Contact";
 export const UserContext = React.createContext();
 
 function App() {
-  const [user, setUser] = useState(() => {
+  const [user, setUser] = useState(null);
+
+  // Load user from localStorage before rendering anything
+  useEffect(() => {
     const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
-  });
+    if (stored) setUser(JSON.parse(stored));
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -60,32 +65,35 @@ function App() {
 
   return (
     <UserContext.Provider value={{ user, setUser, handleAuth, handleLogout }}>
-      <div className="App">
-        <CartProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route
-                path="/category/:categoryName"
-                element={<CategoryPage />}
-              />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/reset-password/:token"
-                element={<ResetPassword />}
-              />
-              <Route path="/wishlist" element={<WishlistPage />} />
-              <Route path="/cart" element={<CartPage />} />
+      <TokenTrackerProvider user={user} setUser={setUser}>
+        <ExpiryDialog />
+        <div className="App">
+          <CartProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route
+                  path="/category/:categoryName"
+                  element={<CategoryPage />}
+                />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/reset-password/:token"
+                  element={<ResetPassword />}
+                />
+                <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/cart" element={<CartPage />} />
 
-            </Routes>
-          </Router>
-        </CartProvider>
-      </div>
+              </Routes>
+            </Router>
+          </CartProvider>
+        </div>
+      </TokenTrackerProvider>
     </UserContext.Provider>
   );
 }

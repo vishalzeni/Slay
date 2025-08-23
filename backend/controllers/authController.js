@@ -50,6 +50,8 @@ const sendMail = async ({ to, subject, html }) => {
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "your_super_refresh_secret_here";
+const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPIRY || "7d";
 
 // Warn if secrets are missing
 if (!JWT_SECRET) {
@@ -62,6 +64,15 @@ const generateAccessToken = (user) => {
     { id: user._id, email: user.email, userId: user.userId },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRY }
+  );
+};
+
+// Generate refresh token
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    { id: user._id, email: user.email, userId: user.userId },
+    JWT_REFRESH_SECRET,
+    { expiresIn: JWT_REFRESH_EXPIRY }
   );
 };
 
@@ -106,6 +117,16 @@ exports.signup = async (req, res) => {
     });
 
     const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    // Set refresh token as httpOnly cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     res.json({
       message: "User registered successfully",
       accessToken,
@@ -151,6 +172,16 @@ exports.login = async (req, res) => {
     });
 
     const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    // Set refresh token as httpOnly cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     res.json({
       message: "Login successful",
       accessToken,

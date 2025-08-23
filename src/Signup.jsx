@@ -86,6 +86,7 @@ const Signup = () => {
       };
       handleAuth({ user: userWithId, accessToken: data.accessToken });
       localStorage.setItem("user", JSON.stringify(userWithId));
+      // DO NOT store refreshToken in localStorage
       setTimeout(() => {
         setLoading(false);
         navigate("/");
